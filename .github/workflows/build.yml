@@ -1,0 +1,47 @@
+name: Cmake Build
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+  workflow_call:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  PROJECT_NAME: Template
+
+jobs:
+    build:
+        name: Build for ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+              os: [ubuntu-latest, windows-latest]
+              include:
+                - os: ubuntu-latest
+                  generator: "Unix Makefiles"
+                  output_file_ext: ""
+                  target_os: Linux
+                - os: windows-latest
+                  generator: "MinGW Makefiles"
+                  output_file_ext: ".exe"
+                  target_os: Windows
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Generate build files
+              run: cmake . -G "${{matrix.generator}}" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_SYSTEM_NAME=${{matrix.target_os}}
+              
+            - name: build
+              run: cmake --build ./build
+                  
+            - name: Archive production artifacts
+              uses: actions/upload-artifact@v3
+              with:
+                name: Build_Output
+                path: |
+                  build/${{env.PROJECT_NAME}}${{matrix.output_file_ext}}
+            

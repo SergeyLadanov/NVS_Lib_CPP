@@ -1,0 +1,112 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "C/C++: Сборка проекта",
+            "command": "",
+            "args": [
+                "cmake",
+                "--build",
+                "./build",
+                "-j4"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Компилятор: \"g++.exe\""
+        },
+        {
+            "type": "shell",
+            "label": "Конфигурация Debug",
+            "command": "",
+            "windows":{
+                "args": [
+                    "cmake",
+                    ".",
+                    "-G",
+                    "MinGW Makefiles",
+                    "-B",
+                    "build",
+                    "-D",
+                    "CMAKE_BUILD_TYPE=DEBUG"
+                ],
+            },
+
+            "linux":{
+                "args": [
+                    "cmake",
+                    ".",
+                    "-G",
+                    "Unix Makefiles",
+                    "-B",
+                    "build",
+                    "-D",
+                    "CMAKE_BUILD_TYPE=DEBUG"
+                ],
+            },
+
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Компилятор: \"g++.exe\""
+        },
+        {
+            "type": "shell",
+            "label": "Конфигурация Release",
+            "command": "",
+            "windows":{
+                "args": [
+                    "cmake",
+                    ".",
+                    "-G",
+                    "MinGW Makefiles",
+                    "-B",
+                    "build",
+                    "-D",
+                    "CMAKE_BUILD_TYPE=RELEASE"
+                ],
+            },
+
+            "linux":{
+                "args": [
+                    "cmake",
+                    ".",
+                    "-G",
+                    "Unix Makefiles",
+                    "-B",
+                    "build",
+                    "-D",
+                    "CMAKE_BUILD_TYPE=RELEASE"
+                ],
+            },
+
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Компилятор: \"g++.exe\""
+        },
+        {
+            "type": "shell",
+            "label": "C/C++: Clean",
+            "command": "",
+            "args": [
+                "cmake",
+                "--build",
+                "./build",
+                "--target",
+                "clean"
+
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "Очистка выходных файлов"
+        }
+    ]
+}
