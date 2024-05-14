@@ -140,6 +140,8 @@ public:
         {
             return (DataBlock_t *) Record.GetNext();
         }
+
+
     };
 
 
@@ -157,7 +159,6 @@ public:
 
 };
 
-#pragma pack(pop)
 
 
 #endif /* __NVS_CELL_HPP__ */
