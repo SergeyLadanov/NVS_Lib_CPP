@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include "NVS_Cell.hpp"
+//#include "NVS_IFlash.hpp"
 
 class NVS_Page
 {
@@ -25,6 +26,17 @@ public:
 #pragma pack(pop)
 
     Header_t *Header = nullptr;
+
+    NVS_Page(uint8_t *start_ptr = nullptr)
+    {
+        SetStartAddr(start_ptr);
+    }
+
+
+    void SetStartAddr(uint8_t *start_ptr)
+    {
+        Header = (Header_t *) start_ptr;
+    }
     
 
 };
