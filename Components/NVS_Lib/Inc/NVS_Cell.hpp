@@ -11,10 +11,11 @@
 class NVS_Cell
 {
 public:
-    static constexpr uint32_t TAG_START = 0x35353535;
     static constexpr uint32_t STATE_ERASED = 0xFFFFFFFF;
     static constexpr uint32_t STATE_VALID = 0xAAAAAAAA;
-    static constexpr uint32_t STATE_CLEARED = 0x00000000;
+    static constexpr uint32_t STATE_RELEASED = 0x00000000;
+
+    static constexpr uint32_t TAG_START = 0x35353535;
     static constexpr size_t MAX_BINARY_CELL_NUMBER = 2;
     
 
