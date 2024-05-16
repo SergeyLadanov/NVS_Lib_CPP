@@ -136,6 +136,114 @@ public:
         }
     }
 
+
+
+
+     // Установка значения
+    inline void SetValue(float val)
+    {
+        Header.Type = TYPE_FLOAT;
+        Header.Value.F32 = val;
+    }
+
+    inline void SetValue(double val)
+    {
+        Header.Type = TYPE_DOUBLE;
+        Header.Value.Double = val;
+    }
+
+    inline void SetValue(int8_t val)
+    {
+        Type = NVS_INT8;
+        Value.I8 = val;
+    }
+
+
+    inline void SetValue(int16_t val)
+    {
+        Type = NVS_INT16;
+        Value.I16 = val;
+    }
+
+    inline void SetValue(int32_t val)
+    {
+        Type = NVS_INT32;
+        Value.I32 = val;
+    }
+
+    inline void SetValue(int64_t val)
+    {
+        Type = NVS_INT64;
+        Value.I64 = val;
+    }
+
+    inline void SetValue(uint8_t val)
+    {
+        Type = NVS_UINT8;
+        Value.UI8 = val;
+    }
+
+    inline void SetValue(uint16_t val)
+    {
+        Type = NVS_UINT16;
+        Value.UI16 = val;
+    }
+
+
+    inline void SetValue(uint32_t val)
+    {
+        Type = NVS_UINT32;
+        Value.UI32 = val;
+    }
+
+    inline void SetValue(uint64_t val)
+    {
+        Type = NVS_UINT64;
+        Value.UI64 = val;
+    }
+
+    inline void SetValue(char *str)
+    {
+        Type = NVS_ARRAY;
+        Value.Arr.Buf = (uint8_t *) str;
+        Value.Arr.BuffSize = strlen(str) + 1;
+    }
+
+
+    inline void SetValue(uint8_t *buf, uint16_t len)
+    {
+        Type = NVS_ARRAY;
+        Value.Arr.Buf = buf;
+        Value.Arr.BuffSize = len;
+    }
+
+
+
+    inline void SetValue(bool val)
+    {
+        Type = NVS_BOOL;
+        Value.BoolVal = val;
+    }
+
+
+    template <typename T>
+    inline T GetValue(void)
+    {
+        T* val = (T *) &Value;
+        return *val;
+    }
+
+
+    inline char *GetString(void)
+    {
+    	return (char *) Value.Arr.Buf;
+    }
+
+    inline NVS_Array *GetArrayInstance(void)
+    {
+    	return &Value.Arr;
+    }
+
 };
 
 
