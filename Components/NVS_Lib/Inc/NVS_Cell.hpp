@@ -15,7 +15,8 @@ public:
     static constexpr uint32_t STATE_ERASED = 0xFFFFFFFF;
     static constexpr uint32_t STATE_VALID = 0xAAAAAAAA;
     static constexpr uint32_t STATE_CLEARED = 0x00000000;
-    static constexpr size_t MAX_BINARY_BLOCK_NUMBER = 2;
+    static constexpr size_t MAX_BINARY_CELL_NUMBER = 2;
+    
 
 
 
@@ -31,8 +32,8 @@ public:
         TYPE_UINT32,
         TYPE_UINT64,
         TYPE_BOOL,
-        TYPE_ARRAY,
-        TYPE_DOUBLE
+        TYPE_DOUBLE,
+        TYPE_ARRAY
     }NVS_DataType;
 
 #pragma pack(push, 1)
@@ -68,13 +69,15 @@ public:
     };
 
 
+    static constexpr size_t MEMORY_CELL_SIZE = (sizeof(Header_t) + sizeof(uint32_t));
+    static constexpr size_t MAX_BINARY_BYTES = MAX_BINARY_CELL_NUMBER * MEMORY_CELL_SIZE;
+
     Header_t Header;
     uint32_t State;
-    uint8_t Binary[];
-
-
+    uint8_t Binary[MAX_BINARY_BYTES];
 
 #pragma pack(pop)
+
 
     void Init(NVS_DataType type, const char * key = nullptr)
     {
@@ -82,6 +85,7 @@ public:
         Header.StartTag = TAG_START;
         State = STATE_ERASED;
         Header.Type = (uint8_t) type;
+        Header.BlockCount = 1;
     }
 
     uint8_t *GetBinaryPtr(void)
@@ -89,15 +93,15 @@ public:
         return Binary;
     }
 
-    size_t GetDescriptorSize(void)
+    size_t GetMemoryCellSize(void)
     {
-        return GetHeaderSize() + GetStateSize();
+        return MEMORY_CELL_SIZE;
     }
 
 
     size_t GetTotalSize(void)
     {
-        return (GetDescriptorSize() + GetDescriptorSize() * Header.BlockCount);
+        return (GetMemoryCellSize() + (GetMemoryCellSize() * Header.BlockCount));
     }
 
 
@@ -125,7 +129,7 @@ public:
 
     NVS_Cell *GetNext(void)
     {
-        return (NVS_Cell *) &Binary[GetDescriptorSize() * Header.BlockCount];
+        return (NVS_Cell *) &Binary[GetMemoryCellSize() * Header.BlockCount];
     }
 
     void SetKey(const char * key)
@@ -137,6 +141,10 @@ public:
     }
 
 
+    uint8_t GetBlockCountBySize(uint32_t size)
+    {
+        return ((size % GetMemoryCellSize()) + 1);
+    }
 
 
      // Установка значения
@@ -154,94 +162,104 @@ public:
 
     inline void SetValue(int8_t val)
     {
-        Type = NVS_INT8;
-        Value.I8 = val;
+        Header.Type = TYPE_INT8;
+        Header.Value.I8 = val;
     }
 
 
     inline void SetValue(int16_t val)
     {
-        Type = NVS_INT16;
-        Value.I16 = val;
+        Header.Type = TYPE_INT16;
+        Header.Value.I16 = val;
     }
 
     inline void SetValue(int32_t val)
     {
-        Type = NVS_INT32;
-        Value.I32 = val;
+        Header.Type = TYPE_INT32;
+        Header.Value.I32 = val;
     }
 
     inline void SetValue(int64_t val)
     {
-        Type = NVS_INT64;
-        Value.I64 = val;
+
+        Header.Type = TYPE_INT64;
+        Header.Value.I64 = val;
     }
 
     inline void SetValue(uint8_t val)
     {
-        Type = NVS_UINT8;
-        Value.UI8 = val;
+        Header.Type = TYPE_UINT8;
+        Header.Value.UI8 = val;
     }
 
     inline void SetValue(uint16_t val)
     {
-        Type = NVS_UINT16;
-        Value.UI16 = val;
+        Header.Type = TYPE_UINT16;
+        Header.Value.UI16 = val;
     }
 
 
     inline void SetValue(uint32_t val)
     {
-        Type = NVS_UINT32;
-        Value.UI32 = val;
+        Header.Type = TYPE_UINT32;
+        Header.Value.UI32 = val;
     }
 
     inline void SetValue(uint64_t val)
     {
-        Type = NVS_UINT64;
-        Value.UI64 = val;
+        Header.Type = TYPE_UINT64;
+        Header.Value.UI64 = val;
     }
 
     inline void SetValue(char *str)
     {
-        Type = NVS_ARRAY;
-        Value.Arr.Buf = (uint8_t *) str;
-        Value.Arr.BuffSize = strlen(str) + 1;
+        Header.Type = TYPE_ARRAY;
+        Header.Value.BinarySize = snprintf((char *) Binary, sizeof(Binary), "%s", str) + 1;
+        Header.BlockCount = GetBlockCountBySize(Header.Value.BinarySize);
     }
 
 
     inline void SetValue(uint8_t *buf, uint16_t len)
     {
-        Type = NVS_ARRAY;
-        Value.Arr.Buf = buf;
-        Value.Arr.BuffSize = len;
+        Header.Type = TYPE_ARRAY;
+        if (len > sizeof(Binary))
+        {
+            len = sizeof(Binary);
+        }
+        Header.Value.BinarySize = len;
+        memcpy(Binary, buf, len);
     }
 
 
 
     inline void SetValue(bool val)
     {
-        Type = NVS_BOOL;
-        Value.BoolVal = val;
+        Header.Type = TYPE_BOOL;
+        Header.Value.BoolVal = val;
     }
 
 
     template <typename T>
     inline T GetValue(void)
     {
-        T* val = (T *) &Value;
+        T* val = (T *) &Header.Value;
         return *val;
     }
 
-
     inline char *GetString(void)
     {
-    	return (char *) Value.Arr.Buf;
+    	return (char *) Binary;
     }
 
-    inline NVS_Array *GetArrayInstance(void)
+
+    inline uint8_t *GetArray(uint32_t *out_size = nullptr)
     {
-    	return &Value.Arr;
+        if (out_size)
+        {
+            *out_size = Header.Value.BinarySize;
+        }
+
+    	return Binary;
     }
 
 };
