@@ -4,11 +4,10 @@
 #include <cstdint>
 #include <cstdio>
 #include "NVS_IFlash.hpp"
+#include <cstring>
 
 
 
-
-#pragma pack(push, 1)
 class NVS_Cell
 {
 public:
@@ -16,6 +15,7 @@ public:
     static constexpr uint32_t STATE_ERASED = 0xFFFFFFFF;
     static constexpr uint32_t STATE_VALID = 0xAAAAAAAA;
     static constexpr uint32_t STATE_CLEARED = 0x00000000;
+    static constexpr size_t MAX_BINARY_BLOCK_NUMBER = 2;
 
 
 
@@ -38,9 +38,8 @@ public:
 #pragma pack(push, 1)
 
 
-    struct RecordBlock_t
+    struct Header_t
     {
-
         uint32_t StartTag;
         char Key[14];
         uint8_t BlockCount;
@@ -61,101 +60,81 @@ public:
             uint32_t BinarySize;
         }Value;
 
-        uint32_t State;
-
-
-        void Init(NVS_DataType type, const char * key = nullptr)
-        {
-            SetKey(key);
-            StartTag = TAG_START;
-            State = STATE_CLEARED;
-            Type = (uint8_t) type;
-        }
-
-        void SetKey(const char * key)
-        {
-            if (key)
-            {
-                snprintf(Key, sizeof(Key), "%s", key);
-            }
-        }
-
-        RecordBlock_t *GetNext(void)
-        {
-            return (RecordBlock_t *) (this + BlockCount);
-        }
-
-        uint8_t *GetBinaryData(void)
-        {
-            return (uint8_t *) (this + 1);
-        }
-
 
         static constexpr size_t GetSize(void)
         {
-            return (sizeof(RecordBlock_t));
-        }
-
-        static constexpr size_t GetDataSize(void)
-        {
-            return (GetSize() - GetStateSize());
-        }
-
-        static constexpr size_t GetStateSize(void)
-        {
-            return (sizeof(State));
+            return (sizeof(Header_t));
         }
     };
 
 
-
-    struct BinaryChunk_t
-    {
-        uint8_t Data[sizeof(RecordBlock_t)];
-
-        static constexpr size_t GetSize(void)
-        {
-            return (sizeof(Data));
-        }
-
-        BinaryChunk_t *GetByIndex(uint8_t index)
-        {
-            return this + index;
-        }
-    };
-
-
-
-    union DataBlock_t
-    {
-        RecordBlock_t Record;
-        BinaryChunk_t Binary;
-        
-        uint8_t *GetBlobBlock(uint8_t block_num)
-        {   
-            return Binary.GetByIndex(block_num + 1)->Data;
-        }
-
-        DataBlock_t *GetNext(void)
-        {
-            return (DataBlock_t *) Record.GetNext();
-        }
-
-
-    };
+    Header_t Header;
+    uint32_t State;
+    uint8_t Binary[];
 
 
 
 #pragma pack(pop)
 
-    DataBlock_t Body;
-    uint8_t  *BinaryBufferPtr = nullptr;
-
-    DataBlock_t *Read(uint8_t *buf)
+    void Init(NVS_DataType type, const char * key = nullptr)
     {
-        return (DataBlock_t *) buf;
+        SetKey(key);
+        Header.StartTag = TAG_START;
+        State = STATE_ERASED;
+        Header.Type = (uint8_t) type;
     }
 
+    uint8_t *GetBinaryPtr(void)
+    {   
+        return Binary;
+    }
+
+    size_t GetDescriptorSize(void)
+    {
+        return GetHeaderSize() + GetStateSize();
+    }
+
+
+    size_t GetTotalSize(void)
+    {
+        return (GetDescriptorSize() + GetDescriptorSize() * Header.BlockCount);
+    }
+
+
+    size_t GetHeaderSize(void)
+    {
+        return Header.GetSize();
+    }
+
+
+    size_t GetStateSize(void)
+    {
+        return sizeof(State);
+    }
+
+    
+    bool IsKey(const char *key)
+    {   
+        if (strstr(key, Header.Key))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    NVS_Cell *GetNext(void)
+    {
+        return (NVS_Cell *) &Binary[GetDescriptorSize() * Header.BlockCount];
+    }
+
+    void SetKey(const char * key)
+    {
+        if (key)
+        {
+            snprintf(Header.Key, sizeof(Header.Key), "%s", key);
+        }
+    }
 
 };
 
