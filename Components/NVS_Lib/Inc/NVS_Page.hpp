@@ -28,14 +28,80 @@ public:
     Header_t Header;
     uint8_t Data[];
 
+    void Init(void)
+    {
+        Header.StartTag = TAG_START;
+        Header.State = STATE_ERASED;
+        Header.Number = 0;
+    }
+
+    void SetNumber(uint32_t val)
+    {
+        Header.Number = val;
+    }
+
     uint32_t GetNumber(void)
     {
         return Header.Number;
     }
 
+
+    void SetState(uint32_t val)
+    {
+        Header.State = val;
+    }
+
+
+    uint32_t GetState(void)
+    {
+        return Header.State;
+    }
+
     uint8_t *GetData(void)
     {
         return Data;
+    }
+
+    bool IsCleared(void)
+    {
+        if ((Header.State == STATE_ERASED) && (Header.StartTag == STATE_ERASED))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    bool IsReady(void)
+    {
+        if ((Header.State == STATE_VALID) && (Header.StartTag == TAG_START))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+    bool IsMarkAsUsed(void)
+    {
+        if (Header.State == STATE_RELEASED)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    bool IsReadyToErase(void)
+    {
+        if ((Header.State == STATE_RELEASED) || (Header.State == STATE_ERASED))
+        {
+            return true;
+        }
+
+        return false;
     }
 };
 

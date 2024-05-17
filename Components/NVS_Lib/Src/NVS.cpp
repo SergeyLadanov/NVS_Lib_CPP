@@ -11,22 +11,24 @@ NVS::NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc, uint32_t len)
 
 int32_t NVS::ScanWriteNumber(void)
 {
-    //NVS_Block Temp;
+    NVS_Page *Page = nullptr;
 
-    int32_t MaxBlock = -1;  
+    int32_t MaxPage = -1;  
     
     for (uint32_t i = 0; i < FlashDescriptorsSize; i++)
     {
-        if (Temp.ReadPrepare(FlashDescriptors[i].MemPtr))
+        Page = (NVS_Page *) FlashDescriptors[i].MemPtr;
+
+        if (Page->IsReady())
         {
-            if ((int32_t) Temp.GetBlockNumber() > MaxBlock)
+            if ((int32_t) Page->GetNumber() > MaxPage)
             {
-                MaxBlock = (int32_t) Temp.GetBlockNumber();
-            }
+                MaxPage = (int32_t) Page->GetNumber();
+            }   
         }
     }
 
-    return MaxBlock;
+    return MaxPage;
 }
 
 
@@ -72,7 +74,7 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
     
     if (LastNumTemp != -1)
     {
-        WriteNumber = LastNumTemp + 1;
+        WriteNumber = LastNumTemp;
     }
     else
     {
