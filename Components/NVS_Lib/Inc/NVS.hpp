@@ -28,6 +28,21 @@ private:
 public:
     NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc = nullptr, uint32_t len = 0);
 
+
+    int32_t ScanWriteNumber(void);
+
+
+    uint32_t GetCurrentIndex(void);
+
+
+    uint32_t GetBackupIndex(void);
+
+
+    uint32_t GetWriteIndex(void);
+
+
+    void Init(FlashDesc_t *flash_desc, uint32_t len);
+
 };
 
 #endif /* __NVS_HPP__ */
