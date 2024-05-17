@@ -43,6 +43,10 @@ public:
 
     void Init(FlashDesc_t *flash_desc, uint32_t len);
 
+private:
+
+    void PagePrepare(uint32_t index);
+
 };
 
 #endif /* __NVS_HPP__ */

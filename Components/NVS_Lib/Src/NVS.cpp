@@ -54,6 +54,16 @@ uint32_t NVS::GetWriteIndex(void)
 }
 
 
+void NVS::PagePrepare(uint32_t index)
+{
+    NVS_Page Page;
+    Page.Init();
+    Page.SetNumber(WriteNumber);
+    FlashInterface.PageErase(FlashDescriptors[index].MemPtr, FlashDescriptors[index].Sector, FlashDescriptors[index].Size);
+    FlashInterface.WriteData(FlashDescriptors[index].MemPtr, (uint8_t *) &Page, sizeof(NVS_Page));
+}
+
+
 void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
 {
 

@@ -31,7 +31,7 @@ public:
     void Init(void)
     {
         Header.StartTag = TAG_START;
-        Header.State = STATE_ERASED;
+        Header.State = STATE_VALID;
         Header.Number = 0;
     }
 
