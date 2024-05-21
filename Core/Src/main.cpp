@@ -1,20 +1,51 @@
 
 #include "main.hpp"
-#include "NVS_Cell.hpp"
+#include "NVS.hpp"
 #include <cstdio>
 
-uint8_t Buffer[1024];
-NVS_Cell *Test = (NVS_Cell *) Buffer;
 
-NVS_Cell *Next;
+
+uint8_t PageBuffer1[512];
+uint8_t PageBuffer2[512];
+
+class SettingsFlash_If : public NVS_IFlash
+{
+private:
+    void PageErase(uint8_t *mem_ptr, uint16_t sector, uint32_t sector_size) override
+    {
+        memset(mem_ptr, 0xFF, sector_size);
+    }
+
+
+    void WriteData(uint8_t * mem_ptr, uint8_t *data_ptr, uint32_t len) override
+    {
+        memcpy(mem_ptr, data_ptr, len);
+    }
+public:
+    SettingsFlash_If()
+    {
+        memset(PageBuffer1, 0xFF, sizeof(PageBuffer1));
+        memset(PageBuffer2, 0xFF, sizeof(PageBuffer2));
+    }
+};
+
+
+static const NVS::FlashDesc_t FlashDescriptor[] =
+{
+    {.MemPtr = (uint8_t *) PageBuffer1, .Size = sizeof(PageBuffer1), .Sector = 0},
+    {.MemPtr = (uint8_t *) PageBuffer2, .Size = sizeof(PageBuffer2), .Sector = 1},
+};
+
+
+static SettingsFlash_If FlashInterface;
+
+
+NVS Storage(FlashInterface);
 
 // Основная программа
 int main(void)
 {
-    Test->Init(NVS_Cell::TYPE_INT16, "test");
-    Next = Test->GetNext();
-    // Test->Record.Init(NVS_Cell::TYPE_INT16);
-    // uint8_t *Bin = Test->GetBlobBlock(0);
-    // printf("Test");
+    Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+    printf("End");
     return 0;  
 }

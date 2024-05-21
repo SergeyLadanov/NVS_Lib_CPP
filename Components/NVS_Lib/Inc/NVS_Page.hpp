@@ -18,9 +18,9 @@ public:
     struct Header_t
     {   
         uint32_t StartTag;
-        uint32_t State;
         uint32_t Number;
         uint32_t Reserved;
+        uint32_t State;
     };
 
 #pragma pack(pop)
@@ -43,6 +43,17 @@ public:
     uint32_t GetNumber(void)
     {
         return Header.Number;
+    }
+
+
+    uint32_t GetHeaderSize(void)
+    {
+        if (IsReady())
+        {
+            return sizeof(Header);
+        }
+        
+        return 0;
     }
 
 

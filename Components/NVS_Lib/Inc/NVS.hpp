@@ -25,25 +25,31 @@ private:
     uint32_t WriteNumber = 0;
 
     NVS_IFlash &FlashInterface;
+
+    uint32_t CurrentPageUsedBytes = 0;
+
+
 public:
     NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc = nullptr, uint32_t len = 0);
 
-
     int32_t ScanWriteNumber(void);
+
+
+    uint32_t GetNewPageIndex(void);
 
 
     uint32_t GetCurrentIndex(void);
 
 
-    uint32_t GetBackupIndex(void);
-
-
-    uint32_t GetWriteIndex(void);
-
-
     void Init(FlashDesc_t *flash_desc, uint32_t len);
 
 private:
+
+    uint32_t GetPageFreeSpace(void);
+
+    uint32_t GetUsedBytes(void);
+
+    uint32_t ScanUsedBytes(void);
 
     void PagePrepare(uint32_t index);
 

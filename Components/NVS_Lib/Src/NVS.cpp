@@ -7,6 +7,33 @@ NVS::NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc, uint32_t len)
 }
 
 
+uint32_t NVS::GetPageFreeSpace(void)
+{
+    return FlashDescriptors[GetCurrentIndex()].Size - GetUsedBytes();
+}
+
+
+uint32_t NVS::GetUsedBytes(void)
+{
+    return CurrentPageUsedBytes;
+}
+
+uint32_t NVS::ScanUsedBytes(void)
+{
+    uint32_t res = 0;
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+
+    res = Page->GetHeaderSize();
+
+    while (!Cell->IsEmpty())
+    {
+        res += Cell->GetTotalSize();
+    }
+    
+    return res;
+}
+
 
 
 int32_t NVS::ScanWriteNumber(void)
@@ -32,23 +59,13 @@ int32_t NVS::ScanWriteNumber(void)
 }
 
 
+uint32_t NVS::GetNewPageIndex(void)
+{
+    return ((GetCurrentIndex() + 1) % FlashDescriptorsSize);
+}
+
+
 uint32_t NVS::GetCurrentIndex(void)
-{
-    
-    uint32_t current_write = GetWriteIndex();
-    //printf("Write number: %d, write index: %d, read index: %d\r\n", WriteNumber, current_write, ((current_write + (FlashDescriptorsSize - 1)) % FlashDescriptorsSize));
-    return ((current_write + (FlashDescriptorsSize - 1)) % FlashDescriptorsSize);
-}
-
-
-uint32_t NVS::GetBackupIndex(void)
-{
-    uint32_t current = GetCurrentIndex();
-    return ((current + (FlashDescriptorsSize - 1)) % FlashDescriptorsSize);
-}
-
-
-uint32_t NVS::GetWriteIndex(void)
 {
     return (WriteNumber % FlashDescriptorsSize);
 }
@@ -88,9 +105,9 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
     }
     else
     {
-            //NVS_BlockWriter<32> block;
-
-            //SaveConfig(block);
+        PagePrepare(GetCurrentIndex());
     }
+
+    CurrentPageUsedBytes = ScanUsedBytes();
 
 }

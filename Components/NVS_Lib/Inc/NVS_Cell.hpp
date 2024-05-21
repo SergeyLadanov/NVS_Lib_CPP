@@ -102,6 +102,17 @@ public:
 
     size_t GetTotalSize(void)
     {
+
+        if (IsEmpty())
+        {
+            return 0;
+        }
+
+        if (Header.BlockCount == 0xFF)
+        {
+            return GetMemoryCellSize();
+        }
+
         return (GetMemoryCellSize() + (GetMemoryCellSize() * Header.BlockCount));
     }
 
@@ -109,6 +120,19 @@ public:
     size_t GetHeaderSize(void)
     {
         return Header.GetSize();
+    }
+    
+
+
+    bool IsEmpty(void)
+    {
+        return (Header.StartTag == STATE_ERASED);
+    }
+
+
+    bool IsValid(void)
+    {
+        return ((Header.StartTag == TAG_START) && (State != STATE_ERASED));
     }
 
 
