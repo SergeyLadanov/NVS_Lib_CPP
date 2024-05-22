@@ -42,12 +42,17 @@ static SettingsFlash_If FlashInterface;
 
 NVS Storage(FlashInterface);
 
+bool Check;
+
 // Основная программа
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-    Storage.SetValue("test", true);
+    Storage.SetValue("test", false);
+
+    Check = Storage.GetValue<bool>("test");
+
     printf("End");
     return 0;  
 }

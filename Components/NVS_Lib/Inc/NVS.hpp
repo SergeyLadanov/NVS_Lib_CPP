@@ -78,18 +78,24 @@ public:
     template <typename T>
     T GetValue(const char *key)
     {
-        // static NVS_Value VoidRes = {0};
-        // NVS_Value *res = nullptr;
+        NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+        NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
 
-        // res = ReadValue(key);
 
-        // if (!res)
-        // {
-        //     res = &VoidRes;
-        // }
+        while (!Cell->IsEmpty())
+        {
+            if (Cell->IsKey(key))
+            {
+                if (Cell->State == NVS_Cell::STATE_VALID)
+                {
+                    break;
+                }
+            }
+            Cell = Cell->GetNext();
+        }
         
     
-        // return res->GetValue<T>();
+        return Cell->GetValue<T>();
     }
 
 private:
