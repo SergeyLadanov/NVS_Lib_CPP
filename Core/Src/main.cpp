@@ -46,6 +46,8 @@ NVS Storage(FlashInterface);
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+    Storage.SetValue("test", true);
     printf("End");
     return 0;  
 }

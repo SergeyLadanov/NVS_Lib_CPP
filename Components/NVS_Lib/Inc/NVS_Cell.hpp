@@ -80,12 +80,12 @@ public:
 #pragma pack(pop)
 
 
-    void Init(NVS_DataType type, const char * key = nullptr)
+    void Init(const char * key = nullptr)
     {
         SetKey(key);
         Header.StartTag = TAG_START;
         State = STATE_ERASED;
-        Header.Type = (uint8_t) type;
+        //Header.Type = (uint8_t) type;
         Header.BlockCount = 1;
     }
 
@@ -113,7 +113,19 @@ public:
             return GetMemoryCellSize();
         }
 
-        return (GetMemoryCellSize() + (GetMemoryCellSize() * Header.BlockCount));
+        return (GetMemoryCellSize() * Header.BlockCount);
+    }
+
+
+    size_t GetBinaryBlockCount(void)
+    {
+        return Header.BlockCount - 1;
+    }
+
+
+    size_t GetBinaryBlockSizeInBytes(void)
+    {
+        return (GetBinaryBlockCount() * GetMemoryCellSize());
     }
 
 

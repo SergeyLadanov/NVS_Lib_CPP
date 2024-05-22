@@ -43,6 +43,55 @@ public:
 
     void Init(FlashDesc_t *flash_desc, uint32_t len);
 
+
+    void ReleaseCell(NVS_Cell *cell)
+    {
+        uint32_t NewState = NVS_Cell::STATE_RELEASED;
+        FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(uint32_t));
+    }
+
+
+    template <typename T>
+    void SetValue(const char *key, T val)
+    {
+        NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+        NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+        NVS_Cell Data;
+
+        while (!Cell->IsEmpty())
+        {
+            if (Cell->IsKey(key))
+            {
+                ReleaseCell(Cell);
+            }
+            Cell = Cell->GetNext();
+        }
+
+        Data.Init(key);
+        Data.SetValue(val);
+        FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
+        Data.State = Data.STATE_VALID;
+        FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
+    }
+
+
+    template <typename T>
+    T GetValue(const char *key)
+    {
+        // static NVS_Value VoidRes = {0};
+        // NVS_Value *res = nullptr;
+
+        // res = ReadValue(key);
+
+        // if (!res)
+        // {
+        //     res = &VoidRes;
+        // }
+        
+    
+        // return res->GetValue<T>();
+    }
+
 private:
 
     uint32_t GetPageFreeSpace(void);
