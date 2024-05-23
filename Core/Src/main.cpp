@@ -5,8 +5,8 @@
 
 
 
-uint8_t PageBuffer1[512];
-uint8_t PageBuffer2[512];
+uint8_t PageBuffer1[128];
+uint8_t PageBuffer2[128];
 
 class SettingsFlash_If : public NVS_IFlash
 {
@@ -48,6 +48,20 @@ bool Check;
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test", false);
 
     Storage.SetValue("test", false);
 

@@ -4,6 +4,7 @@
 #include "NVS_Page.hpp"
 #include "NVS_Cell.hpp"
 #include "NVS_IFlash.hpp"
+#include "NVS_Log.h"
 #include <cstdint>
 
 class NVS
@@ -51,6 +52,11 @@ public:
     }
 
 
+    void CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst);
+
+    void ReleaseCurrentPage(void);
+
+
     template <typename T>
     void SetValue(const char *key, T val)
     {
@@ -69,9 +75,23 @@ public:
 
         Data.Init(key);
         Data.SetValue(val);
-        FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
-        Data.State = Data.STATE_VALID;
-        FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
+
+        if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) >= Data.GetTotalSize())
+        {
+            FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
+            Data.State = Data.STATE_VALID;
+            FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
+            CurrentPageUsedBytes += Data.GetTotalSize();
+
+            NVS_LOG("Write success!\r\n");
+        }
+        else
+        {
+            NVS_LOG("Page is full\r\n");
+            NVS_LOG("Migrate to new page...\r\n");
+
+            ReleaseCurrentPage();
+        }
     }
 
 
@@ -106,7 +126,7 @@ private:
 
     uint32_t ScanUsedBytes(void);
 
-    void PagePrepare(uint32_t index);
+    void PagePrepare(uint32_t index, uint32_t number);
 
 };
 
