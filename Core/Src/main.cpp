@@ -41,6 +41,7 @@ static SettingsFlash_If FlashInterface;
 
 
 NVS Storage(FlashInterface);
+NVS CheckStorage(FlashInterface);
 
 uint32_t Check = 0;
 uint32_t Writeble = 0;
@@ -83,7 +84,13 @@ int main(void)
 
     Check = Storage.GetValue<uint32_t>("test");
 
-    Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+
+
+
+
+
+    CheckStorage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
 
     Check = Storage.GetValue<uint32_t>("test1");
