@@ -51,21 +51,35 @@ int main(void)
 
     Storage.SetValue("test", false);
 
-    Storage.SetValue("test", false);
+    Check = Storage.GetValue<bool>("test");
 
-    Storage.SetValue("test", false);
+    Storage.SetValue("test1", true);
 
-    Storage.SetValue("test", false);
-
-    Storage.SetValue("test", false);
-
-    Storage.SetValue("test", false);
-
-    Storage.SetValue("test", false);
+    Check = Storage.GetValue<bool>("test1");
 
     Storage.SetValue("test", false);
 
     Check = Storage.GetValue<bool>("test");
+
+    Storage.SetValue("test1", true);
+
+    Check = Storage.GetValue<bool>("test1");
+
+    Storage.SetValue("test", false);
+
+    Check = Storage.GetValue<bool>("test");
+
+    Storage.SetValue("test1", false);
+
+    Check = Storage.GetValue<bool>("tes1");
+
+    Storage.SetValue("test", false);
+
+    Storage.SetValue("test1", false);
+
+    //Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+    
 
     printf("End");
     return 0;  

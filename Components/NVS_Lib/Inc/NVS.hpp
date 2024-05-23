@@ -60,9 +60,23 @@ public:
     template <typename T>
     void SetValue(const char *key, T val)
     {
+        NVS_Cell Data;
+
+        Data.Init(key);
+        Data.SetValue(val);
+
         NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
         NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
-        NVS_Cell Data;
+
+
+        if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < Data.GetTotalSize())
+        {
+            NVS_LOG("Page is full\r\n");
+            NVS_LOG("Migrate to new page...\r\n");
+
+            ReleaseCurrentPage();
+        }
+
 
         while (!Cell->IsEmpty())
         {
@@ -73,25 +87,15 @@ public:
             Cell = Cell->GetNext();
         }
 
-        Data.Init(key);
-        Data.SetValue(val);
 
-        if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) >= Data.GetTotalSize())
-        {
-            FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
-            Data.State = Data.STATE_VALID;
-            FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
-            CurrentPageUsedBytes += Data.GetTotalSize();
+        FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
+        Data.State = Data.STATE_VALID;
+        FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
+        CurrentPageUsedBytes += Data.GetTotalSize();
 
-            NVS_LOG("Write success!\r\n");
-        }
-        else
-        {
-            NVS_LOG("Page is full\r\n");
-            NVS_LOG("Migrate to new page...\r\n");
-
-            ReleaseCurrentPage();
-        }
+        NVS_LOG("Write success!\r\n");
+        NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
+        NVS_LOG("Available bytes: %d\r\n", GetPageFreeSpace());
     }
 
 
@@ -127,6 +131,8 @@ private:
     uint32_t ScanUsedBytes(void);
 
     void PagePrepare(uint32_t index, uint32_t number);
+
+    void PageErase(uint32_t index);
 
 };
 

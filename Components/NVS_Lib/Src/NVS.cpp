@@ -29,6 +29,13 @@ uint32_t NVS::ScanUsedBytes(void)
     while (!Cell->IsEmpty())
     {
         res += Cell->GetTotalSize();
+
+        if (res >= FlashDescriptors[GetCurrentIndex()].Size)
+        {
+            break;
+        }
+
+        Cell = Cell->GetNext();
     }
     
     return res;
@@ -76,8 +83,13 @@ void NVS::PagePrepare(uint32_t index, uint32_t number)
     NVS_Page Page;
     Page.Init();
     Page.SetNumber(number);
-    FlashInterface.PageErase(FlashDescriptors[index].MemPtr, FlashDescriptors[index].Sector, FlashDescriptors[index].Size);
     FlashInterface.WriteData(FlashDescriptors[index].MemPtr, (uint8_t *) &Page, sizeof(NVS_Page));
+}
+
+
+void NVS::PageErase(uint32_t index)
+{
+    FlashInterface.PageErase(FlashDescriptors[index].MemPtr, FlashDescriptors[index].Sector, FlashDescriptors[index].Size);
 }
 
 
@@ -109,24 +121,28 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
     {
         NVS_LOG("NVS storage is empty!\r\n");
         NVS_LOG("Initialization of  first storage page...\r\n");
+        PageErase(GetCurrentIndex());
         PagePrepare(GetCurrentIndex(), WriteNumber);
     }
 
     CurrentPageUsedBytes = ScanUsedBytes();
 
+    NVS_LOG("Current settings page: %d\r\n", GetCurrentIndex());
+    NVS_LOG("Using bytes: %d\r\n", GetUsedBytes());
 }
 
 
 void NVS::CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst)
 {
-    
+    FlashInterface.WriteData((uint8_t *) cell_dst, (uint8_t *) cell_src, cell_src->GetTotalSize());
 }
 
 
 void NVS::ReleaseCurrentPage(void)
 {
     uint32_t NewWriteNumber = WriteNumber + 1;
-    PagePrepare(GetNewPageIndex(), NewWriteNumber);
+
+    PageErase(GetNewPageIndex());
 
     NVS_Page *SrcPage = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Page *DstPage = (NVS_Page *) FlashDescriptors[GetNewPageIndex()].MemPtr;
@@ -137,6 +153,8 @@ void NVS::ReleaseCurrentPage(void)
 
     uint32_t CurrentPageNewState = NVS_Page::STATE_RELEASED;
 
+    
+
     uint32_t Bytes = SrcPage->GetHeaderSize();
 
 
@@ -145,7 +163,7 @@ void NVS::ReleaseCurrentPage(void)
 
         if (SrcCell->State == NVS_Cell::STATE_VALID)
         {
-            FlashInterface.WriteData((uint8_t *) DstCell, (uint8_t *) SrcCell, SrcCell->GetTotalSize());
+            CopyItem(SrcCell, DstCell);
             ReleaseCell(SrcCell);
             DstCell = DstCell->GetNext();
         }
@@ -154,6 +172,8 @@ void NVS::ReleaseCurrentPage(void)
 
         SrcCell = SrcCell->GetNext();
     }
+
+    PagePrepare(GetNewPageIndex(), NewWriteNumber);
 
     FlashInterface.WriteData((uint8_t *) &SrcPage->Header.State, (uint8_t *) &CurrentPageNewState, sizeof(CurrentPageNewState));
 

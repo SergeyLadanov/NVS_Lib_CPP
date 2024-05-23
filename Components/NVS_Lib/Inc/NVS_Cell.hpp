@@ -166,7 +166,7 @@ public:
 
     NVS_Cell *GetNext(void)
     {
-        return (NVS_Cell *) &Binary[GetMemoryCellSize() * Header.BlockCount];
+        return (NVS_Cell *) &Binary[GetMemoryCellSize() * (Header.BlockCount-1)];
     }
 
     void SetKey(const char * key)
