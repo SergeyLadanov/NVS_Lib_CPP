@@ -55,7 +55,10 @@ public:
         NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
 
 
-        while (!Cell->IsEmpty())
+        uint32_t Bytes = Page->GetHeaderSize();
+
+
+        while ((!Cell->IsEmpty()) && (Bytes < CurrentPageUsedBytes))
         {
             if (Cell->IsKey(key))
             {
@@ -64,6 +67,9 @@ public:
                     break;
                 }
             }
+
+            Bytes += Cell->GetTotalSize();
+
             Cell = Cell->GetNext();
         }
         

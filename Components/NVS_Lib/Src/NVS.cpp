@@ -188,9 +188,6 @@ void NVS::ReleaseCurrentPage(void)
 
 void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
 {
-    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
-    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
-
 
     if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < new_cell.GetTotalSize())
     {
@@ -199,6 +196,9 @@ void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
 
         ReleaseCurrentPage();
     }
+
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
 
 
     while (!Cell->IsEmpty())

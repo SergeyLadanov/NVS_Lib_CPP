@@ -42,42 +42,56 @@ static SettingsFlash_If FlashInterface;
 
 NVS Storage(FlashInterface);
 
-bool Check;
+uint32_t Check = 0;
+uint32_t Writeble = 0;
 
 // Основная программа
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-    Storage.SetValue("test", false);
+    Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<bool>("test");
+    Check = Storage.GetValue<uint32_t>("test");
 
-    Storage.SetValue("test1", true);
+    Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<bool>("test1");
+    Check = Storage.GetValue<uint32_t>("test1");
 
-    Storage.SetValue("test", false);
+    Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<bool>("test");
+    Check = Storage.GetValue<uint32_t>("test");
 
-    Storage.SetValue("test1", true);
+    Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<bool>("test1");
+    Check = Storage.GetValue<uint32_t>("test1");
 
-    Storage.SetValue("test", false);
+    Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<bool>("test");
+    Check = Storage.GetValue<uint32_t>("test");
 
-    Storage.SetValue("test1", false);
+    Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<bool>("tes1");
+    Check = Storage.GetValue<uint32_t>("test1");
 
-    Storage.SetValue("test", false);
+    Storage.SetValue("test", Writeble++);
 
-    Storage.SetValue("test1", false);
+    Storage.SetValue("test1", Writeble++);
 
-    //Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+    Check = Storage.GetValue<uint32_t>("test1");
+
+    Check = Storage.GetValue<uint32_t>("test");
+
+    Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+
+    Check = Storage.GetValue<uint32_t>("test1");
+
+    Check = Storage.GetValue<uint32_t>("test");
+
+
+
 
     
 

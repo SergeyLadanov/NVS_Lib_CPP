@@ -156,7 +156,7 @@ public:
     
     bool IsKey(const char *key)
     {   
-        if (strstr(key, Header.Key))
+        if (!strcmp(key, Header.Key))
         {
             return true;
         }
