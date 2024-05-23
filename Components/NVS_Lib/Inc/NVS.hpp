@@ -33,28 +33,7 @@ private:
 public:
     NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc = nullptr, uint32_t len = 0);
 
-    int32_t ScanWriteNumber(void);
-
-
-    uint32_t GetNewPageIndex(void);
-
-
-    uint32_t GetCurrentIndex(void);
-
-
     void Init(FlashDesc_t *flash_desc, uint32_t len);
-
-
-    void ReleaseCell(NVS_Cell *cell)
-    {
-        uint32_t NewState = NVS_Cell::STATE_RELEASED;
-        FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(uint32_t));
-    }
-
-
-    void CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst);
-
-    void ReleaseCurrentPage(void);
 
 
     template <typename T>
@@ -65,37 +44,7 @@ public:
         Data.Init(key);
         Data.SetValue(val);
 
-        NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
-        NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
-
-
-        if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < Data.GetTotalSize())
-        {
-            NVS_LOG("Page is full\r\n");
-            NVS_LOG("Migrate to new page...\r\n");
-
-            ReleaseCurrentPage();
-        }
-
-
-        while (!Cell->IsEmpty())
-        {
-            if (Cell->IsKey(key))
-            {
-                ReleaseCell(Cell);
-            }
-            Cell = Cell->GetNext();
-        }
-
-
-        FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &Data, Data.GetTotalSize());
-        Data.State = Data.STATE_VALID;
-        FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &Data.State, sizeof(Data.State));
-        CurrentPageUsedBytes += Data.GetTotalSize();
-
-        NVS_LOG("Write success!\r\n");
-        NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
-        NVS_LOG("Available bytes: %d\r\n", GetPageFreeSpace());
+        WriteCell(Data, key);
     }
 
 
@@ -133,6 +82,21 @@ private:
     void PagePrepare(uint32_t index, uint32_t number);
 
     void PageErase(uint32_t index);
+
+
+    void ReleaseCell(NVS_Cell *cell);
+
+    void CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst);
+
+    void ReleaseCurrentPage(void);
+
+    void WriteCell(NVS_Cell &new_cell, const char *key);
+
+    int32_t ScanWriteNumber(void);
+
+    uint32_t GetNewPageIndex(void);
+
+    uint32_t GetCurrentIndex(void);
 
 };
 

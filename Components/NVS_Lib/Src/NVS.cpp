@@ -183,3 +183,49 @@ void NVS::ReleaseCurrentPage(void)
 
     NVS_LOG("Used bytes: %d\r\n", CurrentPageUsedBytes);
 }
+
+
+
+void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
+{
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+
+
+    if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < new_cell.GetTotalSize())
+    {
+        NVS_LOG("Page is full\r\n");
+        NVS_LOG("Migrate to new page...\r\n");
+
+        ReleaseCurrentPage();
+    }
+
+
+    while (!Cell->IsEmpty())
+    {
+        if (Cell->IsKey(key))
+        {
+            ReleaseCell(Cell);
+        }
+        Cell = Cell->GetNext();
+    }
+
+
+    FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &new_cell, new_cell.GetTotalSize());
+    new_cell.State = new_cell.STATE_VALID;
+    FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &new_cell.State, sizeof(new_cell.State));
+    CurrentPageUsedBytes += new_cell.GetTotalSize();
+
+    NVS_LOG("Write success!\r\n");
+    NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
+    NVS_LOG("Available bytes: %d\r\n", GetPageFreeSpace());
+}
+
+
+
+
+void NVS::ReleaseCell(NVS_Cell *cell)
+{
+    uint32_t NewState = NVS_Cell::STATE_RELEASED;
+    FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(uint32_t));
+}
