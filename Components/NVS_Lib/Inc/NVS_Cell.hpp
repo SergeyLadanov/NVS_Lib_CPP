@@ -180,7 +180,7 @@ public:
 
     uint8_t GetBlockCountBySize(uint32_t size)
     {
-        return ((size % GetMemoryCellSize()) + 1);
+        return ((size / GetMemoryCellSize()) + 1);
     }
 
 
@@ -252,7 +252,7 @@ public:
     {
         Header.Type = TYPE_ARRAY;
         Header.Value.BinarySize = snprintf((char *) Binary, sizeof(Binary), "%s", str) + 1;
-        Header.BlockCount = GetBlockCountBySize(Header.Value.BinarySize);
+        Header.BlockCount += GetBlockCountBySize(Header.Value.BinarySize);
     }
 
 

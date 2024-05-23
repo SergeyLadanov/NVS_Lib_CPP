@@ -77,6 +77,37 @@ public:
         return Cell->GetValue<T>();
     }
 
+
+
+
+    char *GetString(const char *key)
+    {
+        NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+        NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+
+
+        uint32_t Bytes = Page->GetHeaderSize();
+
+
+        while ((!Cell->IsEmpty()) && (Bytes < CurrentPageUsedBytes))
+        {
+            if (Cell->IsKey(key))
+            {
+                if (Cell->State == NVS_Cell::STATE_VALID)
+                {
+                    break;
+                }
+            }
+
+            Bytes += Cell->GetTotalSize();
+
+            Cell = Cell->GetNext();
+        }
+        
+    
+        return Cell->GetString();
+    }
+
 private:
 
     uint32_t GetPageFreeSpace(void);

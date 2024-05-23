@@ -46,10 +46,20 @@ NVS CheckStorage(FlashInterface);
 uint32_t Check = 0;
 uint32_t Writeble = 0;
 
+char *buf = "hello, world";
+char *check_buf = "hello, world";
+
+
 // Основная программа
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+    Storage.SetValue("test", buf);
+
+    check_buf = Storage.GetString("test");
+
+    Check = Storage.GetValue<uint32_t>("test");
 
     Storage.SetValue("test", Writeble++);
 
