@@ -272,6 +272,8 @@ NVS_Cell *NVS::FindCellByKey(const char *key)
 
     uint32_t Bytes = Page->GetHeaderSize();
 
+    bool status = false;
+
 
     while ((!Cell->IsEmpty()) && (Bytes < CurrentPageUsedBytes))
     {
@@ -279,6 +281,7 @@ NVS_Cell *NVS::FindCellByKey(const char *key)
         {
             if (Cell->State == NVS_Cell::STATE_VALID)
             {
+                status = true;
                 break;
             }
         }
@@ -286,6 +289,11 @@ NVS_Cell *NVS::FindCellByKey(const char *key)
         Bytes += Cell->GetTotalSize();
 
         Cell = Cell->GetNext();
+    }
+
+    if (!status)
+    {
+        Cell = nullptr;
     }
 
     return Cell;
@@ -296,6 +304,11 @@ NVS_Cell *NVS::FindCellByKey(const char *key)
 char *NVS::GetString(const char *key)
 {
     NVS_Cell *Cell = FindCellByKey(key);
+
+    if ((!Cell) || (Cell->Header.Type != NVS_Cell::TYPE_ARRAY))
+    {
+        return nullptr;
+    }
     
     return Cell->GetString();
 }
@@ -316,7 +329,39 @@ int8_t NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
 uint8_t *NVS::GetArray(const char *key, uint16_t *out_size)
 {
     NVS_Cell *Cell = FindCellByKey(key);
+
+
+    if ((!Cell) || (Cell->Header.Type != NVS_Cell::TYPE_ARRAY))
+    {
+        return nullptr;
+    }
+
     return Cell->GetArray(out_size);
+}
+
+
+
+int8_t NVS::GetArray(const char *key, uint8_t *out_buf, uint16_t *out_size)
+{
+    NVS_Cell *Cell = FindCellByKey(key);
+    uint16_t BlobSize = 0;
+
+    if ((!Cell) || (Cell->Header.Type != NVS_Cell::TYPE_ARRAY))
+    {
+        return -1;
+    }
+
+    uint8_t *blob = Cell->GetArray(&BlobSize);
+
+    if (out_size)
+    {
+        *out_size = BlobSize;
+    }
+
+    memcpy(out_buf, blob, BlobSize);
+
+
+    return 0;
 }
 
 

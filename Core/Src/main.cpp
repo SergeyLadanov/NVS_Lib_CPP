@@ -5,8 +5,8 @@
 
 
 
-uint8_t PageBuffer1[128];
-uint8_t PageBuffer2[128];
+static uint8_t PageBuffer1[256];
+static uint8_t PageBuffer2[256];
 
 class SettingsFlash_If : public NVS_IFlash
 {
@@ -40,101 +40,137 @@ static const NVS::FlashDesc_t FlashDescriptor[] =
 static SettingsFlash_If FlashInterface;
 
 
-NVS Storage(FlashInterface);
-NVS CheckStorage(FlashInterface);
+static NVS Storage(FlashInterface);
+static NVS CheckStorage(FlashInterface);
 
-uint16_t Check = 0;
-uint16_t Writeble = 0;
+static uint16_t ProbeU16 = 0x35;
+static uint16_t CheckProbeU16 = 0;
 
-char *buf = "hello, world";
-char *check_buf = nullptr;
+char *StrProbe = (char *) "hello, world";
+char *CheckStrProbe = nullptr;
 
 
-struct Test_t
+struct ProbeStruct_t
 {
     uint32_t a1;
     uint32_t a2;
 };
 
 
+static ProbeStruct_t ProbeStruct = {35, 35};
 
-Test_t Probe = {35, 35};
+static ProbeStruct_t CheckProbeStruct;
 
-Test_t *Read;
+static ProbeStruct_t *CheckProbeStructPtr = nullptr;
 
-uint16_t outsize = 0;
+static uint16_t outsize = 0;
+
+
+static void Write(void)
+{
+    if (!Storage.SetValue("test_string", StrProbe))
+    {
+        printf("Write string success!\r\n");
+    }
+    else
+    {
+        printf("Write string failed!\r\n");
+    }
+
+
+    if (!Storage.SetValue("test_struct", (uint8_t *) &ProbeStruct, sizeof(ProbeStruct)))
+    {
+        printf("Write struct success!\r\n");
+    }
+    else
+    {
+        printf("Write struct failed!\r\n");
+    }
+
+
+    if (!Storage.SetValue("test_u16", ProbeU16))
+    {
+        printf("Write u16 success!\r\n");
+    }
+    else
+    {
+        printf("Write u16 failed!\r\n");
+    }
+}
+
+
+
+static void Check(NVS &storage_for_check)
+{
+    CheckStrProbe = storage_for_check.GetString("test_string");
+
+    if ((CheckStrProbe) && (!strcmp(CheckStrProbe, StrProbe)))
+    {
+        printf("String validation success!\r\n");
+    }
+    else
+    {
+        printf("String validation failed!\r\n");
+    }
+
+
+    CheckProbeU16 = storage_for_check.GetValue<typeof(CheckProbeU16)>("test_u16");
+
+    if (ProbeU16 == CheckProbeU16)
+    {
+        printf("U16 validation success!\r\n");
+    }
+    else
+    {
+        printf("U16 validation failed!\r\n");
+    }
+
+
+    CheckProbeStructPtr = (ProbeStruct_t *)storage_for_check.GetArray("test_struct", &outsize);
+
+    if ((CheckProbeStructPtr) && (CheckProbeStructPtr->a1 == ProbeStruct.a1) && (CheckProbeStructPtr->a2 == ProbeStruct.a2) && (outsize == sizeof(ProbeStruct_t)))
+    {
+        printf("Struct validation 1 success!\r\n");
+    }
+    else
+    {
+        printf("Struct validation 1 failed!\r\n");
+    }
+
+    if ((!storage_for_check.GetArray("test_struct", (uint8_t *) &CheckProbeStruct, &outsize)) && (CheckProbeStruct.a1 == ProbeStruct.a1) && (CheckProbeStruct.a2 == ProbeStruct.a2) && (outsize == sizeof(ProbeStruct_t)))
+    {
+        printf("Struct validation 2 success!\r\n");
+    }
+    else
+    {
+        printf("Struct validation 2 failed!\r\n");
+    }
+}
+
+
 
 // Основная программа
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-    Storage.SetValue("test", buf);
+    for (uint8_t tries = 0; tries < 35; tries++)
+    {
+        Write();
+    }
 
-    Storage.RemoveValue("test");
+    printf("\r\n\r\nTest immediatly...\r\n\r\n");
+    Check(Storage);
 
-    printf("Avaliavble in bytes: %d\r\n", Storage.GetAvaliableSpaceInBytes());
+    printf("\r\n\r\n");
 
-    printf("Avaliavble in blocks: %d\r\n", Storage.GetAvaliableSpaceInBlocks());
-
-    Storage.SetValue("test", (uint8_t *) &Probe, sizeof(Probe));
-
-    Read = (Test_t *) Storage.GetArray("test", &outsize);
-
-    check_buf = Storage.GetString("test");
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-    Storage.SetValue("test", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-    Storage.SetValue("test1", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test1");
-
-    Storage.SetValue("test", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-    Storage.SetValue("test1", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test1");
-
-    Storage.SetValue("test", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-    Storage.SetValue("test1", Writeble++);
-
-    Check = Storage.GetValue<typeof(Check)>("test1");
-
-    Storage.SetValue("test", Writeble++);
-
-    Storage.SetValue("test1", Writeble++);
-
-
-    Check = Storage.GetValue<typeof(Check)>("test1");
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-
-
-
-
-
+    printf("Initialization new storage in defined pages...\r\n");
 
     CheckStorage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-
-    Check = Storage.GetValue<typeof(Check)>("test1");
-
-    Check = Storage.GetValue<typeof(Check)>("test");
-
-
-
-
-    
+    printf("\r\n\r\nTest after reset...\r\n\r\n");
+    Check(CheckStorage);
+    printf("\r\n\r\n");
 
     printf("End");
     return 0;  

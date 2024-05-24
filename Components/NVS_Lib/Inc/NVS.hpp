@@ -61,6 +61,8 @@ public:
 
     uint8_t *GetArray(const char *key, uint16_t *out_size = nullptr);
 
+    int8_t GetArray(const char *key, uint8_t *out_buf, uint16_t *out_size);
+
     char *GetString(const char *key);
 
     uint32_t GetAvaliableSpaceInBytes(void);
