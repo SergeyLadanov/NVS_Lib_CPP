@@ -7,10 +7,10 @@ extern "C"
 #endif
 
 #include "stdio.h"
+#include "NVS_Config.h"
 
-#define NVS_DEBUG 1
 
-#if NVS_DEBUG != 0
+#if NVS_CONF_DEBUG != 0
 #define NVS_LOG(...) printf(__VA_ARGS__)
 #else
 #define NVS_LOG(TEXT, ...)

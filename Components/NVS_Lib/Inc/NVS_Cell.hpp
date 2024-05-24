@@ -5,6 +5,7 @@
 #include <cstdio>
 #include "NVS_IFlash.hpp"
 #include <cstring>
+#include "NVS_Config.h"
 
 
 
@@ -16,7 +17,7 @@ public:
     static constexpr uint32_t STATE_RELEASED = 0x00000000;
 
     static constexpr uint32_t TAG_START = 0x35353535;
-    static constexpr size_t MAX_BINARY_CELL_NUMBER = 2;
+    static constexpr size_t MAX_BINARY_CELL_NUMBER = NVS_CONF_MAXBINARYCELLS_COUNT;
     
 
 
@@ -43,7 +44,7 @@ public:
     struct Header_t
     {
         uint32_t StartTag;
-        char Key[14];
+        char Key[NVS_CONF_KEY_SIZE];
         uint8_t BlockCount;
         uint8_t Type;
         union __Value
