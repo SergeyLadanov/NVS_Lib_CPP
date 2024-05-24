@@ -47,7 +47,6 @@ public:
         WriteCell(Data, key);
     }
 
-
     template <typename T>
     T GetValue(const char *key)
     {
@@ -56,6 +55,10 @@ public:
         return Cell->GetValue<T>();
     }
 
+
+    void SetValue(const char *key, uint8_t *buf, uint16_t len);
+
+    uint8_t *GetArray(const char *key, uint16_t *out_size = nullptr);
 
     char *GetString(const char *key);
 

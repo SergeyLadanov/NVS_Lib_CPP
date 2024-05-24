@@ -50,16 +50,34 @@ char *buf = "hello, world";
 char *check_buf = nullptr;
 
 
+struct Test_t
+{
+    uint32_t a1;
+    uint32_t a2;
+};
+
+
+
+Test_t Probe = {35, 35};
+
+Test_t *Read;
+
+uint16_t outsize = 0;
+
 // Основная программа
 int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-    Storage.SetValue("test", buf);
+    //Storage.SetValue("test", buf);
 
     printf("Avaliavble in bytes: %d\r\n", Storage.GetAvaliableSpaceInBytes());
 
     printf("Avaliavble in blocks: %d\r\n", Storage.GetAvaliableSpaceInBlocks());
+
+    Storage.SetValue("test", (uint8_t *) &Probe, sizeof(Probe));
+
+    Read = (Test_t *) Storage.GetArray("test", &outsize);
 
     check_buf = Storage.GetString("test");
 

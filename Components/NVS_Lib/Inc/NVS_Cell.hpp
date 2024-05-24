@@ -282,6 +282,7 @@ public:
             len = sizeof(Binary);
         }
         Header.Value.BinarySize = len;
+        Header.BlockCount += GetBlockCountBySize(Header.Value.BinarySize);
         memcpy(Binary, buf, len);
     }
 
@@ -307,7 +308,7 @@ public:
     }
 
 
-    inline uint8_t *GetArray(uint32_t *out_size = nullptr)
+    inline uint8_t *GetArray(uint16_t *out_size = nullptr)
     {
         if (out_size)
         {

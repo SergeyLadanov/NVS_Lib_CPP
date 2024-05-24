@@ -270,6 +270,24 @@ char *NVS::GetString(const char *key)
 
 
 
+void NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
+{
+    NVS_Cell Data;
+
+    Data.Init(key);
+    Data.SetValue(buf, len);
+
+    WriteCell(Data, key);
+}
+
+
+uint8_t *NVS::GetArray(const char *key, uint16_t *out_size)
+{
+    NVS_Cell *Cell = FindCellByKey(key);
+    return Cell->GetArray(out_size);
+}
+
+
 uint32_t NVS::GetAvaliableSpaceInBytes(void)
 {
     uint32_t used = 0;
