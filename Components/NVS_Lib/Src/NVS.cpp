@@ -229,3 +229,76 @@ void NVS::ReleaseCell(NVS_Cell *cell)
     uint32_t NewState = NVS_Cell::STATE_RELEASED;
     FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(uint32_t));
 }
+
+
+
+NVS_Cell *NVS::FindCellByKey(const char *key)
+{
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+
+
+    uint32_t Bytes = Page->GetHeaderSize();
+
+
+    while ((!Cell->IsEmpty()) && (Bytes < CurrentPageUsedBytes))
+    {
+        if (Cell->IsKey(key))
+        {
+            if (Cell->State == NVS_Cell::STATE_VALID)
+            {
+                break;
+            }
+        }
+
+        Bytes += Cell->GetTotalSize();
+
+        Cell = Cell->GetNext();
+    }
+
+    return Cell;
+}
+
+
+
+char *NVS::GetString(const char *key)
+{
+    NVS_Cell *Cell = FindCellByKey(key);
+    
+    return Cell->GetString();
+}
+
+
+
+uint32_t NVS::GetAvaliableSpaceInBytes(void)
+{
+    uint32_t used = 0;
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+
+    used = Page->GetHeaderSize();
+
+    while (!Cell->IsEmpty())
+    {
+        if (Cell->IsValid())
+        {
+            used += Cell->GetTotalSize();
+        }
+        
+
+        if (used >= FlashDescriptors[GetCurrentIndex()].Size)
+        {
+            break;
+        }
+
+        Cell = Cell->GetNext();
+    }
+    
+    return FlashDescriptors[GetCurrentIndex()].Size - used;
+}
+
+
+uint32_t NVS::GetAvaliableSpaceInBlocks(void)
+{
+    return GetAvaliableSpaceInBytes() / NVS_Cell::MEMORY_CELL_SIZE;
+}

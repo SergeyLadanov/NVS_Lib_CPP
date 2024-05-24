@@ -57,6 +57,10 @@ int main(void)
 
     Storage.SetValue("test", buf);
 
+    printf("Avaliavble in bytes: %d\r\n", Storage.GetAvaliableSpaceInBytes());
+
+    printf("Avaliavble in blocks: %d\r\n", Storage.GetAvaliableSpaceInBlocks());
+
     check_buf = Storage.GetString("test");
 
     Check = Storage.GetValue<uint32_t>("test");
