@@ -43,11 +43,11 @@ static SettingsFlash_If FlashInterface;
 NVS Storage(FlashInterface);
 NVS CheckStorage(FlashInterface);
 
-uint32_t Check = 0;
-uint32_t Writeble = 0;
+uint16_t Check = 0;
+uint16_t Writeble = 0;
 
 char *buf = "hello, world";
-char *check_buf = "hello, world";
+char *check_buf = nullptr;
 
 
 // Основная программа
@@ -63,40 +63,40 @@ int main(void)
 
     check_buf = Storage.GetString("test");
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
     Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
     Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test1");
+    Check = Storage.GetValue<typeof(Check)>("test1");
 
     Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
     Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test1");
+    Check = Storage.GetValue<typeof(Check)>("test1");
 
     Storage.SetValue("test", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
     Storage.SetValue("test1", Writeble++);
 
-    Check = Storage.GetValue<uint32_t>("test1");
+    Check = Storage.GetValue<typeof(Check)>("test1");
 
     Storage.SetValue("test", Writeble++);
 
     Storage.SetValue("test1", Writeble++);
 
 
-    Check = Storage.GetValue<uint32_t>("test1");
+    Check = Storage.GetValue<typeof(Check)>("test1");
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
 
 
@@ -107,9 +107,9 @@ int main(void)
     CheckStorage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
 
-    Check = Storage.GetValue<uint32_t>("test1");
+    Check = Storage.GetValue<typeof(Check)>("test1");
 
-    Check = Storage.GetValue<uint32_t>("test");
+    Check = Storage.GetValue<typeof(Check)>("test");
 
 
 

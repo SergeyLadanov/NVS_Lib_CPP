@@ -4,23 +4,24 @@
 
 #include <cstdint>
 #include "NVS_Cell.hpp"
+#include "NVS_Config.h"
 
 class NVS_Page
 { 
 public:
-    static constexpr uint32_t TAG_START = 0x35353535;
+    static constexpr NVS_Tag_t TAG_START = (NVS_Tag_t) 0x35353535;
 
-    static constexpr uint32_t STATE_ERASED = 0xFFFFFFFF;
-    static constexpr uint32_t STATE_VALID = 0xAAAAAAAA;
-    static constexpr uint32_t STATE_RELEASED = 0x00000000;
+    static constexpr NVS_State_t STATE_ERASED = (NVS_State_t) 0xFFFFFFFF;
+    static constexpr NVS_State_t STATE_VALID = (NVS_State_t) 0xAAAAAAAA;
+    static constexpr NVS_State_t STATE_RELEASED = (NVS_State_t) 0x00000000;
 
 #pragma pack(push, 1)
     struct Header_t
     {   
-        uint32_t StartTag;
+        NVS_Tag_t StartTag;
         uint32_t Number;
-        uint32_t Reserved;
-        uint32_t State;
+        NVS_State_t Reserved;
+        NVS_State_t State;
     };
 
 #pragma pack(pop)

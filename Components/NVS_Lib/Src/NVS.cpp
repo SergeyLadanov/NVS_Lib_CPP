@@ -151,7 +151,7 @@ void NVS::ReleaseCurrentPage(void)
     NVS_Cell *SrcCell = (NVS_Cell *) SrcPage->GetData();
     NVS_Cell *DstCell = (NVS_Cell *) DstPage->GetData();
 
-    uint32_t CurrentPageNewState = NVS_Page::STATE_RELEASED;
+    NVS_State_t CurrentPageNewState = NVS_Page::STATE_RELEASED;
 
     
 
@@ -226,8 +226,8 @@ void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
 
 void NVS::ReleaseCell(NVS_Cell *cell)
 {
-    uint32_t NewState = NVS_Cell::STATE_RELEASED;
-    FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(uint32_t));
+    NVS_State_t NewState = NVS_Cell::STATE_RELEASED;
+    FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(NewState));
 }
 
 

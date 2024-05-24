@@ -12,11 +12,11 @@
 class NVS_Cell
 {
 public:
-    static constexpr uint32_t STATE_ERASED = 0xFFFFFFFF;
-    static constexpr uint32_t STATE_VALID = 0xAAAAAAAA;
-    static constexpr uint32_t STATE_RELEASED = 0x00000000;
+    static constexpr NVS_State_t STATE_ERASED = (NVS_State_t) 0xFFFFFFFF;
+    static constexpr NVS_State_t STATE_VALID = (NVS_State_t) 0xAAAAAAAA;
+    static constexpr NVS_State_t STATE_RELEASED = (NVS_State_t) 0x00000000;
 
-    static constexpr uint32_t TAG_START = 0x35353535;
+    static constexpr NVS_Tag_t TAG_START = (NVS_Tag_t) 0x35353535;
     static constexpr size_t MAX_BINARY_CELL_NUMBER = NVS_CONF_MAXBINARYCELLS_COUNT;
     
 
@@ -43,24 +43,28 @@ public:
 
     struct Header_t
     {
-        uint32_t StartTag;
+        NVS_Tag_t StartTag;
         char Key[NVS_CONF_KEY_SIZE];
         uint8_t BlockCount;
         uint8_t Type;
         union __Value
         {
-            float F32;
-            double Double;
-            uint64_t UI64;
-            uint32_t UI32;
             uint16_t UI16;
             uint8_t UI8;
-            int64_t I64;
-            int32_t I32;
             int16_t I16;
             int8_t I8;
             bool BoolVal;
-            uint32_t BinarySize;
+            uint16_t BinarySize;
+    #if NVS_CONF_MAXSIZE_OF_CELL_VALUES >=4
+            float F32;
+            uint32_t UI32;
+            int32_t I32;
+    #endif
+    #if NVS_CONF_MAXSIZE_OF_CELL_VALUES >= 8
+            uint64_t UI64;
+            int64_t I64;
+            double Double;
+    #endif
         }Value;
 
 
@@ -71,11 +75,11 @@ public:
     };
 
 
-    static constexpr size_t MEMORY_CELL_SIZE = (sizeof(Header_t) + sizeof(uint32_t));
+    static constexpr size_t MEMORY_CELL_SIZE = (sizeof(Header_t) + sizeof(NVS_State_t));
     static constexpr size_t MAX_BINARY_BYTES = MAX_BINARY_CELL_NUMBER * MEMORY_CELL_SIZE;
 
     Header_t Header;
-    uint32_t State;
+    NVS_State_t State;
     uint8_t Binary[MAX_BINARY_BYTES];
 
 #pragma pack(pop)
@@ -186,17 +190,6 @@ public:
 
 
      // Установка значения
-    inline void SetValue(float val)
-    {
-        Header.Type = TYPE_FLOAT;
-        Header.Value.F32 = val;
-    }
-
-    inline void SetValue(double val)
-    {
-        Header.Type = TYPE_DOUBLE;
-        Header.Value.Double = val;
-    }
 
     inline void SetValue(int8_t val)
     {
@@ -211,18 +204,8 @@ public:
         Header.Value.I16 = val;
     }
 
-    inline void SetValue(int32_t val)
-    {
-        Header.Type = TYPE_INT32;
-        Header.Value.I32 = val;
-    }
 
-    inline void SetValue(int64_t val)
-    {
 
-        Header.Type = TYPE_INT64;
-        Header.Value.I64 = val;
-    }
 
     inline void SetValue(uint8_t val)
     {
@@ -236,18 +219,52 @@ public:
         Header.Value.UI16 = val;
     }
 
-
+#if NVS_CONF_MAXSIZE_OF_CELL_VALUES >=4
     inline void SetValue(uint32_t val)
     {
         Header.Type = TYPE_UINT32;
         Header.Value.UI32 = val;
     }
 
+
+    inline void SetValue(int32_t val)
+    {
+        Header.Type = TYPE_INT32;
+        Header.Value.I32 = val;
+    }
+
+
+
+    inline void SetValue(float val)
+    {
+        Header.Type = TYPE_FLOAT;
+        Header.Value.F32 = val;
+    }
+#endif
+
+#if NVS_CONF_MAXSIZE_OF_CELL_VALUES >=8
     inline void SetValue(uint64_t val)
     {
         Header.Type = TYPE_UINT64;
         Header.Value.UI64 = val;
     }
+
+
+    inline void SetValue(int64_t val)
+    {
+
+        Header.Type = TYPE_INT64;
+        Header.Value.I64 = val;
+    }
+
+
+    inline void SetValue(double val)
+    {
+        Header.Type = TYPE_DOUBLE;
+        Header.Value.Double = val;
+    }
+#endif
+
 
     inline void SetValue(char *str)
     {
