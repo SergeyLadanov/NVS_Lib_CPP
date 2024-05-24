@@ -69,7 +69,9 @@ int main(void)
 {
     Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
 
-    //Storage.SetValue("test", buf);
+    Storage.SetValue("test", buf);
+
+    Storage.RemoveValue("test");
 
     printf("Avaliavble in bytes: %d\r\n", Storage.GetAvaliableSpaceInBytes());
 

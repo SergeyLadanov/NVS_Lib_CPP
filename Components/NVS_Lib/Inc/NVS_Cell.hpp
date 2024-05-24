@@ -153,6 +153,12 @@ public:
     }
 
 
+    bool IsCleared(void)
+    {
+        return (State == STATE_RELEASED);
+    }
+
+
     size_t GetStateSize(void)
     {
         return sizeof(State);

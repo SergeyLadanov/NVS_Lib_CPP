@@ -37,14 +37,14 @@ public:
 
 
     template <typename T>
-    void SetValue(const char *key, T val)
+    int8_t SetValue(const char *key, T val)
     {
         NVS_Cell Data;
 
         Data.Init(key);
         Data.SetValue(val);
 
-        WriteCell(Data, key);
+        return WriteCell(Data, key);
     }
 
     template <typename T>
@@ -55,8 +55,9 @@ public:
         return Cell->GetValue<T>();
     }
 
+    void RemoveValue(const char *key);
 
-    void SetValue(const char *key, uint8_t *buf, uint16_t len);
+    int8_t SetValue(const char *key, uint8_t *buf, uint16_t len);
 
     uint8_t *GetArray(const char *key, uint16_t *out_size = nullptr);
 
@@ -87,7 +88,7 @@ private:
 
     void ReleaseCurrentPage(void);
 
-    void WriteCell(NVS_Cell &new_cell, const char *key);
+    int8_t WriteCell(NVS_Cell &new_cell, const char *key);
 
     int32_t ScanWriteNumber(void);
 

@@ -138,6 +138,28 @@ void NVS::CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst)
 }
 
 
+void NVS::RemoveValue(const char *key)
+{
+    NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
+    NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+    uint32_t Bytes = Page->GetHeaderSize();
+
+
+    while ((!Cell->IsEmpty()) && (Bytes < CurrentPageUsedBytes))
+    {
+
+        if (Cell->State == NVS_Cell::STATE_VALID)
+        {
+            ReleaseCell(Cell);
+        }
+
+        Bytes += Cell->GetTotalSize();
+
+        Cell = Cell->GetNext();
+    }
+    
+}
+
 void NVS::ReleaseCurrentPage(void)
 {
     uint32_t NewWriteNumber = WriteNumber + 1;
@@ -186,8 +208,16 @@ void NVS::ReleaseCurrentPage(void)
 
 
 
-void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
+int8_t NVS::WriteCell(NVS_Cell &new_cell, const char *key)
 {
+    
+    NVS_LOG("Required size: %d\r\n", new_cell.GetTotalSize());
+    NVS_LOG("Avalible size: %d\r\n", GetAvaliableSpaceInBytes());
+
+    if (new_cell.GetTotalSize() > GetAvaliableSpaceInBytes())
+    {
+        return -1;
+    }
 
     if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < new_cell.GetTotalSize())
     {
@@ -219,6 +249,8 @@ void NVS::WriteCell(NVS_Cell &new_cell, const char *key)
     NVS_LOG("Write success!\r\n");
     NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
     NVS_LOG("Available bytes: %d\r\n", GetPageFreeSpace());
+
+    return 0;
 }
 
 
@@ -270,14 +302,14 @@ char *NVS::GetString(const char *key)
 
 
 
-void NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
+int8_t NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
 {
     NVS_Cell Data;
 
     Data.Init(key);
     Data.SetValue(buf, len);
 
-    WriteCell(Data, key);
+    return WriteCell(Data, key);
 }
 
 
@@ -298,7 +330,7 @@ uint32_t NVS::GetAvaliableSpaceInBytes(void)
 
     while (!Cell->IsEmpty())
     {
-        if (Cell->IsValid())
+        if (!Cell->IsCleared())
         {
             used += Cell->GetTotalSize();
         }
