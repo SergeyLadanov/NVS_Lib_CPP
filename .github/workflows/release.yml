@@ -14,25 +14,48 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v4
+
+
+      - name: ZIP files
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: 'release.zip'
+          directory: 'Components'
+
+
       - name: Download build artifatcs
         uses: actions/download-artifact@v3
         with:
           name: Build_Output
       - name: List of files
         run: ls
+
+
+      - name: Upload lib source files to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release.zip
+          asset_name: NVS_Lib_$tag.zip
+          tag: ${{ github.ref }}
+
         
       - name: Upload Windows executable file to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: Template.exe
-          asset_name: Template_amd64_Windows_$tag.exe
+          file: NVS_Test.exe
+          asset_name: NVS_Test_amd64_Windows_$tag.exe
           tag: ${{ github.ref }}
+          
           
       - name: Upload Linux executable file to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: Template
-          asset_name: Template_amd64_Linux_$tag
+          file: NVS_Test
+          asset_name: NVS_Test_amd64_Linux_$tag
           tag: ${{ github.ref }}

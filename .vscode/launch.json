@@ -8,7 +8,7 @@
             "name": "g++.exe - Сборка и отладка активного файла",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Template",
+            "program": "${workspaceFolder}/build/NVS_Test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

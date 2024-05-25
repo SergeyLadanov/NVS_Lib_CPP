@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Название проекта
-project(Template)
+project(NVS_Test)
 
 # Переменная с именем исполняемого файла
 set(EXECUTABLE ${PROJECT_NAME})
