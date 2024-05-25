@@ -48,11 +48,19 @@ public:
     }
 
     template <typename T>
-    T GetValue(const char *key)
+    int8_t GetValue(const char *key, T &out)
     {
         NVS_Cell *Cell = FindCellByKey(key);
         
-        return Cell->GetValue<T>();
+        int8_t res = -1;
+
+        if (Cell)
+        {
+        	out = Cell->GetValue<T>();
+        	res = 0;
+        }
+
+        return res;
     }
 
     void RemoveValue(const char *key);

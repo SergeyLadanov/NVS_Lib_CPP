@@ -114,7 +114,14 @@ static void Check(NVS &storage_for_check)
     }
 
 
-    CheckProbeU16 = storage_for_check.GetValue<typeof(CheckProbeU16)>("test_u16");
+    if (!storage_for_check.GetValue("test_u16", CheckProbeU16))
+    {
+        printf("U16 read success!\r\n");
+    }
+    else
+    {
+        printf("U16 read failed!\r\n");
+    }
 
     if (ProbeU16 == CheckProbeU16)
     {
@@ -123,6 +130,17 @@ static void Check(NVS &storage_for_check)
     else
     {
         printf("U16 validation failed!\r\n");
+    }
+
+
+
+    if (!storage_for_check.GetValue("test_u35", CheckProbeU16))
+    {
+        printf("U35 read success!\r\n");
+    }
+    else
+    {
+        printf("U35 read failed! (Ok, key is not in storage)\r\n");
     }
 
 
