@@ -1,55 +1,138 @@
-# Cmake_Template
+# NVS_Lib_CPP
 Шаблон проекта C/C++ для Cmake
 ## Формат данных ячейки
 ```
 start_4, key_14, size_1, type_1, data_8, state_4
 ```
-# Описание
-Шаблон предоставляет возможность организовать модульную структуру проекта C/C++. Весь функционал для организации модульной структуры содержится в файле common-tools.cmake. В папку Components необходимо добавить файлы библиотек/модулей (с отдельным файлом CMakeLists.txt), заголовочные файлы которых будут доступны в главном приложении, сами библиотеки/модули будут собираться независимо. Между компонентами есть возможность выстраивать зависимости (задействовать заголовочные файлы из указанного компонента) с помощью директивы Depends_On в файле СMakeLists.txt компонента:
 
+## Пример для STM32F303VCT6
+
+```cpp
+class SettingsFlash_If : public NVS_IFlash
+{
+private:
+    void PageErase(uint8_t *mem_ptr, uint16_t sector, uint32_t sector_size) override
+    {
+    	FLASH_EraseInitTypeDef EraseDescr =
+    	{
+    		.TypeErase = FLASH_TYPEERASE_PAGES,
+			.PageAddress = (uint32_t ) mem_ptr,
+			.NbPages = 1
+    	};
+
+    	uint32_t Status = 0;
+        //memset(mem_ptr, 0xFF, sector_size);
+    	HAL_FLASH_Unlock();
+
+	    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+	    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR);
+	    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_PGERR);
+
+    	HAL_FLASHEx_Erase(&EraseDescr, &Status);
+    	HAL_FLASH_Lock();
+    }
+
+
+    void WriteData(uint8_t * mem_ptr, uint8_t *data_ptr, uint32_t len) override
+    {
+    	HAL_FLASH_Unlock();
+    	len = len/4;
+    	uint32_t *U32_data = (uint32_t *) data_ptr;
+    	uint32_t *U32_Mem = (uint32_t *) mem_ptr;
+    	for (uint32_t i = 0; i < len; i++)
+    	{
+    		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t) &U32_Mem[i], (uint64_t) U32_data[i]);
+    	}
+
+    	HAL_FLASH_Lock();
+    }
+public:
+    SettingsFlash_If()
+    {
+//        memset(PageBuffer1, 0xFF, sizeof(PageBuffer1));
+//        memset(PageBuffer2, 0xFF, sizeof(PageBuffer2));
+    }
+};
+
+
+static const NVS::FlashDesc_t FlashDescriptor[] =
+{
+    {.MemPtr = (uint8_t *) 0x0803F000, .Size = 2048, .Sector = 126},
+    {.MemPtr = (uint8_t *) 0x0803F800, .Size = 2048, .Sector = 127},
+};
+
+static SettingsFlash_If FlashInterface;
+static NVS Storage(FlashInterface);
+
+
+static uint16_t ProbeU16 = 0x35;
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  /* USER CODE BEGIN 2 */
+  Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+
+
+
+
+  ProbeU16 = Storage.GetValue<typeof(ProbeU16)>("test_u16");
+
+  ProbeU16++;
+
+  if (!Storage.SetValue("test_u16", (uint16_t) (ProbeU16)))
+  {
+	printf("Write u16 success!\r\n");
+  }
+  else
+  {
+	printf("Write u16 failed!\r\n");
+  }
+
+
+  HAL_Delay(2000);
+
+  NVIC_SystemReset();
+
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}
 ```
-Depends_On(
-  Dependency_1
-  Dependency_2
-  )
-```
 
-Допускается использование кавычек в названиях компонента, но не допускается наличие пробелов.
-
-Также можно указать зависимость компонента от главного приложения:
-
-```
-Depends_On_Main()
-```
-
-Рекомендуемая структура файла CMakeLists.txt для компонента:
-
-```
-cmake_minimum_required(VERSION 3.10)
-
-# Put directory name to COMPONENT_NAME variable
-get_filename_component(COMPONENT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-# Set component name
-project(${COMPONENT_NAME})
-
-# Add source files
-set(SOURCE_LIB 
-    Src/file1.cpp
-)
-
-# Add includes
-include_directories(
-    Inc
-)
-
-# Creating static library
-add_library(${COMPONENT_NAME} STATIC ${SOURCE_LIB})
-
-# Set dependence (optionaly)
-Depends_On(
-    "Dependency_1"
-    Dependency_2
-    )
-```
-
-В случае если компонент не имеет зависимостей от других компонентов, появляется возможность компилировать компонент отдельно от проекта.
