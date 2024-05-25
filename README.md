@@ -89,7 +89,8 @@ private:
 public:
     SettingsFlash_If()
     {
-
+//        memset(PageBuffer1, 0xFF, sizeof(PageBuffer1));
+//        memset(PageBuffer2, 0xFF, sizeof(PageBuffer2));
     }
 };
 
@@ -105,6 +106,16 @@ static NVS Storage(FlashInterface);
 
 
 static uint16_t ProbeU16 = 0x35;
+static uint32_t ProbeU32 = 0x35;
+uint32_t AvalibleSpace = 0;
+
+#if NVS_CONF_USE_STRING_KEY != 0
+NVS_Key_t u16_key = "test_u16";
+NVS_Key_t u32_key = "test_u32";
+#else
+NVS_Key_t u16_key = 1;
+NVS_Key_t u32_key = 2;
+#endif
 /* USER CODE END 0 */
 
 /**
@@ -138,30 +149,52 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   Storage.Init((NVS::FlashDesc_t *) FlashDescriptor, 2);
+  AvalibleSpace = Storage.GetAvaliableSpaceInBytes();
 
 
 
 
-  if (!Storage.GetValue("test_u16", ProbeU16))
+  if (!Storage.GetValue(u16_key, ProbeU16))
   {
 	  printf("Value was found!\r\n");
   }
 
-  ProbeU16++;
-
-  if (!Storage.SetValue("test_u16", (uint16_t) (ProbeU16)))
+  if (!Storage.GetValue(u32_key, ProbeU32))
   {
-	  printf("Write u16 success!\r\n");
+	  printf("Value was found!\r\n");
+  }
+
+  printf("Value u32: %lu\r\n", ProbeU32);
+  printf("Value u16: %u\r\n", ProbeU16);
+
+  ProbeU16++;
+  ProbeU32++;
+
+  if (!Storage.SetValue(u16_key, ProbeU16))
+  {
+	printf("Write u16 success!\r\n");
   }
   else
   {
-	  printf("Write u16 failed!\r\n");
+	printf("Write u16 failed!\r\n");
   }
 
 
-  HAL_Delay(2000);
+  if (!Storage.SetValue(u32_key, ProbeU32))
+  {
+	printf("Write u32 success!\r\n");
+  }
+  else
+  {
+	printf("Write u32 failed!\r\n");
+  }
+
+
+  HAL_Delay(800);
 
   NVIC_SystemReset();
+
+
 
   /* USER CODE END 2 */
 
