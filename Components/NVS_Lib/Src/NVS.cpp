@@ -173,10 +173,6 @@ void NVS::ReleaseCurrentPage(void)
     NVS_Cell *SrcCell = (NVS_Cell *) SrcPage->GetData();
     NVS_Cell *DstCell = (NVS_Cell *) DstPage->GetData();
 
-    NVS_State_t CurrentPageNewState = NVS_Page::STATE_RELEASED;
-
-    
-
     uint32_t Bytes = SrcPage->GetHeaderSize();
 
 
@@ -186,7 +182,7 @@ void NVS::ReleaseCurrentPage(void)
         if (SrcCell->State == NVS_Cell::STATE_VALID)
         {
             CopyItem(SrcCell, DstCell);
-            ReleaseCell(SrcCell);
+            //ReleaseCell(SrcCell);
             DstCell = DstCell->GetNext();
         }
 
@@ -197,7 +193,7 @@ void NVS::ReleaseCurrentPage(void)
 
     PagePrepare(GetNewPageIndex(), NewWriteNumber);
 
-    FlashInterface.WriteData((uint8_t *) &SrcPage->Header.State, (uint8_t *) &CurrentPageNewState, sizeof(CurrentPageNewState));
+    ReleasePage(SrcPage);
 
     WriteNumber = NewWriteNumber;
 
@@ -229,13 +225,14 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, const char *key)
 
     NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
+    NVS_Cell *PreviousCell = nullptr;
 
 
     while (!Cell->IsEmpty())
     {
         if (Cell->IsKey(key))
         {
-            ReleaseCell(Cell);
+            PreviousCell = Cell;
         }
         Cell = Cell->GetNext();
     }
@@ -245,6 +242,11 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, const char *key)
     new_cell.State = new_cell.STATE_VALID;
     FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &new_cell.State, sizeof(new_cell.State));
     CurrentPageUsedBytes += new_cell.GetTotalSize();
+
+    if (PreviousCell)
+    {
+        ReleaseCell(PreviousCell);
+    }
 
     NVS_LOG("Write success!\r\n");
     NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
@@ -262,6 +264,13 @@ void NVS::ReleaseCell(NVS_Cell *cell)
     FlashInterface.WriteData((uint8_t *) &cell->State, (uint8_t *) &NewState, sizeof(NewState));
 }
 
+
+
+void NVS::ReleasePage(NVS_Page *page)
+{
+    NVS_State_t NewState = NVS_Cell::STATE_RELEASED;
+    FlashInterface.WriteData((uint8_t *) &page->Header.State, (uint8_t *) &NewState, sizeof(NewState));
+}
 
 
 NVS_Cell *NVS::FindCellByKey(const char *key)

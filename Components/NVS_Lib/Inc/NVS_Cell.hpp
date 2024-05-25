@@ -12,11 +12,11 @@
 class NVS_Cell
 {
 public:
-    static constexpr NVS_State_t STATE_ERASED = (NVS_State_t) 0xFFFFFFFF;
-    static constexpr NVS_State_t STATE_VALID = (NVS_State_t) 0xAAAAAAAA;
-    static constexpr NVS_State_t STATE_RELEASED = (NVS_State_t) 0x00000000;
+    static constexpr NVS_State_t STATE_ERASED = (NVS_State_t) NVS_CONF_ERASED_STATE_VALUE;
+    static constexpr NVS_State_t STATE_VALID = (NVS_State_t) NVS_CONF_VALID_STATE_VALUE;
+    static constexpr NVS_State_t STATE_RELEASED = (NVS_State_t) NVS_CONF_RELEASED_STATE_VALUE;
 
-    static constexpr NVS_Tag_t TAG_START = (NVS_Tag_t) 0x35353535;
+    static constexpr NVS_Tag_t TAG_START = (NVS_Tag_t) NVS_CONF_TAG_START_VALUE;
     static constexpr size_t MAX_BINARY_CELL_NUMBER = NVS_CONF_MAXBINARYCELLS_COUNT;
     
 

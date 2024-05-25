@@ -94,6 +94,8 @@ private:
 
     void ReleaseCell(NVS_Cell *cell);
 
+    void ReleasePage(NVS_Page *page);
+
     void CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst);
 
     void ReleaseCurrentPage(void);
