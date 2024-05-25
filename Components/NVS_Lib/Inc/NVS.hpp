@@ -37,7 +37,7 @@ public:
 
 
     template <typename T>
-    int8_t SetValue(const char *key, T val)
+    int8_t SetValue(NVS_Key_t key, T val)
     {
         NVS_Cell Data;
 
@@ -48,7 +48,7 @@ public:
     }
 
     template <typename T>
-    int8_t GetValue(const char *key, T &out)
+    int8_t GetValue(NVS_Key_t key, T &out)
     {
         NVS_Cell *Cell = FindCellByKey(key);
         
@@ -63,15 +63,15 @@ public:
         return res;
     }
 
-    void RemoveValue(const char *key);
+    void RemoveValue(NVS_Key_t key);
 
-    int8_t SetValue(const char *key, uint8_t *buf, uint16_t len);
+    int8_t SetValue(NVS_Key_t key, uint8_t *buf, uint16_t len);
 
-    uint8_t *GetArray(const char *key, uint16_t *out_size = nullptr);
+    uint8_t *GetArray(NVS_Key_t key, uint16_t *out_size = nullptr);
 
-    int8_t GetArray(const char *key, uint8_t *out_buf, uint16_t *out_size);
+    int8_t GetArray(NVS_Key_t key, uint8_t *out_buf, uint16_t *out_size);
 
-    char *GetString(const char *key);
+    char *GetString(NVS_Key_t key);
 
     uint32_t GetAvaliableSpaceInBytes(void);
 
@@ -83,7 +83,7 @@ private:
 
     uint32_t GetPageFreeSpace(void);
 
-    NVS_Cell *FindCellByKey(const char *key);
+    NVS_Cell *FindCellByKey(NVS_Key_t key);
 
     uint32_t GetUsedBytes(void);
 
@@ -102,7 +102,7 @@ private:
 
     void ReleaseCurrentPage(void);
 
-    int8_t WriteCell(NVS_Cell &new_cell, const char *key);
+    int8_t WriteCell(NVS_Cell &new_cell, NVS_Key_t key);
 
     int32_t ScanWriteNumber(void);
 

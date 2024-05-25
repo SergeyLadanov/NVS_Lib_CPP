@@ -5,8 +5,8 @@
 
 
 
-static uint8_t PageBuffer1[256];
-static uint8_t PageBuffer2[256];
+static uint8_t PageBuffer1[128];
+static uint8_t PageBuffer2[128];
 
 class SettingsFlash_If : public NVS_IFlash
 {
@@ -66,9 +66,32 @@ static ProbeStruct_t *CheckProbeStructPtr = nullptr;
 static uint16_t outsize = 0;
 
 
+#if NVS_CONF_USE_STRING_KEY == 1
+NVS_Key_t StringKey = "test_string";
+NVS_Key_t StructKey = "test_struct";
+NVS_Key_t U16Key = "test_u16";
+NVS_Key_t NoneKey = "test_u35";
+#else
+typedef enum
+{   
+    STRING_KEY = 1,
+    STRUCT_KEY,
+    U16_KEY,
+    NONE_KEY
+}NVS_KEYS_t;
+
+NVS_Key_t StringKey = STRING_KEY;
+NVS_Key_t StructKey = STRUCT_KEY;
+NVS_Key_t U16Key = U16_KEY;
+NVS_Key_t NoneKey = NONE_KEY;
+#endif
+
+
+
+
 static void Write(void)
 {
-    if (!Storage.SetValue("test_string", StrProbe))
+    if (!Storage.SetValue(StringKey, StrProbe))
     {
         printf("Write string success!\r\n");
     }
@@ -78,7 +101,7 @@ static void Write(void)
     }
 
 
-    if (!Storage.SetValue("test_struct", (uint8_t *) &ProbeStruct, sizeof(ProbeStruct)))
+    if (!Storage.SetValue(StructKey, (uint8_t *) &ProbeStruct, sizeof(ProbeStruct)))
     {
         printf("Write struct success!\r\n");
     }
@@ -88,7 +111,7 @@ static void Write(void)
     }
 
 
-    if (!Storage.SetValue("test_u16", ProbeU16))
+    if (!Storage.SetValue(U16Key, ProbeU16))
     {
         printf("Write u16 success!\r\n");
     }
@@ -102,7 +125,7 @@ static void Write(void)
 
 static void Check(NVS &storage_for_check)
 {
-    CheckStrProbe = storage_for_check.GetString("test_string");
+    CheckStrProbe = storage_for_check.GetString(StringKey);
 
     if ((CheckStrProbe) && (!strcmp(CheckStrProbe, StrProbe)))
     {
@@ -114,7 +137,7 @@ static void Check(NVS &storage_for_check)
     }
 
 
-    if (!storage_for_check.GetValue("test_u16", CheckProbeU16))
+    if (!storage_for_check.GetValue(U16Key, CheckProbeU16))
     {
         printf("U16 read success!\r\n");
     }
@@ -134,7 +157,7 @@ static void Check(NVS &storage_for_check)
 
 
 
-    if (!storage_for_check.GetValue("test_u35", CheckProbeU16))
+    if (!storage_for_check.GetValue(NoneKey, CheckProbeU16))
     {
         printf("U35 read success!\r\n");
     }
@@ -144,7 +167,7 @@ static void Check(NVS &storage_for_check)
     }
 
 
-    CheckProbeStructPtr = (ProbeStruct_t *)storage_for_check.GetArray("test_struct", &outsize);
+    CheckProbeStructPtr = (ProbeStruct_t *)storage_for_check.GetArray(StructKey, &outsize);
 
     if ((CheckProbeStructPtr) && (CheckProbeStructPtr->a1 == ProbeStruct.a1) && (CheckProbeStructPtr->a2 == ProbeStruct.a2) && (outsize == sizeof(ProbeStruct_t)))
     {
@@ -155,7 +178,7 @@ static void Check(NVS &storage_for_check)
         printf("Struct validation 1 failed!\r\n");
     }
 
-    if ((!storage_for_check.GetArray("test_struct", (uint8_t *) &CheckProbeStruct, &outsize)) && (CheckProbeStruct.a1 == ProbeStruct.a1) && (CheckProbeStruct.a2 == ProbeStruct.a2) && (outsize == sizeof(ProbeStruct_t)))
+    if ((!storage_for_check.GetArray(StructKey, (uint8_t *) &CheckProbeStruct, &outsize)) && (CheckProbeStruct.a1 == ProbeStruct.a1) && (CheckProbeStruct.a2 == ProbeStruct.a2) && (outsize == sizeof(ProbeStruct_t)))
     {
         printf("Struct validation 2 success!\r\n");
     }
