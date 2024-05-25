@@ -5,8 +5,8 @@
 
 
 
-static uint8_t PageBuffer1[128];
-static uint8_t PageBuffer2[128];
+static uint8_t PageBuffer1[256];
+static uint8_t PageBuffer2[256];
 
 class SettingsFlash_If : public NVS_IFlash
 {

@@ -217,7 +217,7 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, NVS_Key_t key)
         return -1;
     }
 
-    if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < new_cell.GetTotalSize())
+    if (GetPageFreeSpace() < new_cell.GetTotalSize())
     {
         NVS_LOG("Page is full\r\n");
         NVS_LOG("Migrate to new page...\r\n");
@@ -379,10 +379,12 @@ int8_t NVS::GetArray(NVS_Key_t key, uint8_t *out_buf, uint16_t *out_size)
 uint32_t NVS::GetAvaliableSpaceInBytes(void)
 {
     uint32_t used = 0;
+    uint32_t handled_bytes = 0;
     NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
 
     used = Page->GetHeaderSize();
+    handled_bytes = Page->GetHeaderSize();
 
     while (!Cell->IsEmpty())
     {
@@ -391,8 +393,9 @@ uint32_t NVS::GetAvaliableSpaceInBytes(void)
             used += Cell->GetTotalSize();
         }
         
+        handled_bytes += Cell->GetTotalSize();
 
-        if (used >= FlashDescriptors[GetCurrentIndex()].Size)
+        if (handled_bytes >= FlashDescriptors[GetCurrentIndex()].Size)
         {
             break;
         }
