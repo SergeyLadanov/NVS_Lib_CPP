@@ -190,6 +190,8 @@ int main(void)
     Check(CheckStorage);
     printf("\r\n\r\n");
 
+    // CheckStorage.Clear();
+    // Check(CheckStorage);
     printf("End");
     return 0;  
 }

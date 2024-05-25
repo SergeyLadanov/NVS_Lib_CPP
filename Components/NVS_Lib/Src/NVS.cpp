@@ -97,6 +97,8 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
 {
 
     int32_t LastNumTemp = -1;
+
+    WriteNumber = 0;
     
     if (flash_desc)
     {
@@ -405,4 +407,16 @@ uint32_t NVS::GetAvaliableSpaceInBytes(void)
 uint32_t NVS::GetAvaliableSpaceInBlocks(void)
 {
     return GetAvaliableSpaceInBytes() / NVS_Cell::MEMORY_CELL_SIZE;
+}
+
+
+
+void NVS::Clear(void)
+{
+    for (uint32_t i = 0; i < FlashDescriptorsSize; i++)
+    {
+        FlashInterface.PageErase(FlashDescriptors[i].MemPtr, FlashDescriptors[i].Sector, FlashDescriptors[i].Size);
+    }
+    
+    Init(FlashDescriptors, FlashDescriptorsSize);
 }

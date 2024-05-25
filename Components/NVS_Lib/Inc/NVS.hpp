@@ -77,6 +77,8 @@ public:
 
     uint32_t GetAvaliableSpaceInBlocks(void);
 
+    void Clear(void);
+
 private:
 
     uint32_t GetPageFreeSpace(void);
