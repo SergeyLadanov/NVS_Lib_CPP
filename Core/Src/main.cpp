@@ -66,7 +66,7 @@ static ProbeStruct_t *CheckProbeStructPtr = nullptr;
 static uint16_t outsize = 0;
 
 
-#if NVS_CONF_USE_STRING_KEY == 1
+#if NVS_CONF_USE_STRING_KEY != 0
 NVS_Key_t StringKey = "test_string";
 NVS_Key_t StructKey = "test_struct";
 NVS_Key_t U16Key = "test_u16";
