@@ -15,7 +15,7 @@
 
 #define NVS_CONF_MAXSIZE_OF_CELL_VALUES 8
 
-
+#define NVS_CONF_USE_STRING_KEY 1
 
 #define NVS_CONF_TAG_START_VALUE 0x35353535
 
@@ -30,6 +30,13 @@
 typedef NVS_CONF_TYPEOF_TAG NVS_Tag_t;
 
 typedef NVS_CONF_TYPEOF_STATE NVS_State_t;
+
+#if NVS_CONF_USE_STRING_KEY != 0
+typedef const char* NVS_Key_t;
+#else
+typedef uint16_t NVS_Key_t;
+#endif
+
 
 
 #endif /* __NVS_CONFIG_H__ */

@@ -44,7 +44,12 @@ public:
     struct Header_t
     {
         NVS_Tag_t StartTag;
+#if NVS_CONF_USE_STRING_KEY != 0
         char Key[NVS_CONF_KEY_SIZE];
+#else
+        uint16_t Key;
+#endif
+        
         uint8_t BlockCount;
         uint8_t Type;
         union __Value
@@ -84,8 +89,11 @@ public:
 
 #pragma pack(pop)
 
-
-    void Init(const char * key = nullptr)
+#if NVS_CONF_USE_STRING_KEY != 0
+    void Init(NVS_Key_t key = nullptr)
+#else
+    void Init(NVS_Key_t key = 0)
+#endif
     {
         SetKey(key);
         Header.StartTag = TAG_START;
@@ -165,9 +173,13 @@ public:
     }
 
     
-    bool IsKey(const char *key)
+    bool IsKey(NVS_Key_t key)
     {   
+#if NVS_CONF_USE_STRING_KEY != 0
         if (!strcmp(key, Header.Key))
+#else
+        if (key == Header.Key)
+#endif
         {
             return true;
         }
@@ -180,12 +192,16 @@ public:
         return (NVS_Cell *) &Binary[GetMemoryCellSize() * (Header.BlockCount-1)];
     }
 
-    void SetKey(const char * key)
+    void SetKey(NVS_Key_t key)
     {
+#if NVS_CONF_USE_STRING_KEY != 0
         if (key)
         {
             snprintf(Header.Key, sizeof(Header.Key), "%s", key);
         }
+#else
+        Header.Key = key;
+#endif
     }
 
 

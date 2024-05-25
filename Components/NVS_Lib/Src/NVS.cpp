@@ -140,7 +140,7 @@ void NVS::CopyItem(NVS_Cell *cell_src, NVS_Cell *cell_dst)
 }
 
 
-void NVS::RemoveValue(const char *key)
+void NVS::RemoveValue(NVS_Key_t key)
 {
     NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
@@ -206,7 +206,7 @@ void NVS::ReleaseCurrentPage(void)
 
 
 
-int8_t NVS::WriteCell(NVS_Cell &new_cell, const char *key)
+int8_t NVS::WriteCell(NVS_Cell &new_cell, NVS_Key_t key)
 {
     
     NVS_LOG("Required size: %d\r\n", new_cell.GetTotalSize());
@@ -217,7 +217,7 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, const char *key)
         return -1;
     }
 
-    if ((FlashDescriptors[GetCurrentIndex()].Size - CurrentPageUsedBytes) < new_cell.GetTotalSize())
+    if (GetPageFreeSpace() < new_cell.GetTotalSize())
     {
         NVS_LOG("Page is full\r\n");
         NVS_LOG("Migrate to new page...\r\n");
@@ -275,7 +275,7 @@ void NVS::ReleasePage(NVS_Page *page)
 }
 
 
-NVS_Cell *NVS::FindCellByKey(const char *key)
+NVS_Cell *NVS::FindCellByKey(NVS_Key_t key)
 {
     NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
@@ -312,7 +312,7 @@ NVS_Cell *NVS::FindCellByKey(const char *key)
 
 
 
-char *NVS::GetString(const char *key)
+char *NVS::GetString(NVS_Key_t key)
 {
     NVS_Cell *Cell = FindCellByKey(key);
 
@@ -326,7 +326,7 @@ char *NVS::GetString(const char *key)
 
 
 
-int8_t NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
+int8_t NVS::SetValue(NVS_Key_t key, uint8_t *buf, uint16_t len)
 {
     NVS_Cell Data;
 
@@ -337,7 +337,7 @@ int8_t NVS::SetValue(const char *key, uint8_t *buf, uint16_t len)
 }
 
 
-uint8_t *NVS::GetArray(const char *key, uint16_t *out_size)
+uint8_t *NVS::GetArray(NVS_Key_t key, uint16_t *out_size)
 {
     NVS_Cell *Cell = FindCellByKey(key);
 
@@ -352,7 +352,7 @@ uint8_t *NVS::GetArray(const char *key, uint16_t *out_size)
 
 
 
-int8_t NVS::GetArray(const char *key, uint8_t *out_buf, uint16_t *out_size)
+int8_t NVS::GetArray(NVS_Key_t key, uint8_t *out_buf, uint16_t *out_size)
 {
     NVS_Cell *Cell = FindCellByKey(key);
     uint16_t BlobSize = 0;
@@ -379,10 +379,12 @@ int8_t NVS::GetArray(const char *key, uint8_t *out_buf, uint16_t *out_size)
 uint32_t NVS::GetAvaliableSpaceInBytes(void)
 {
     uint32_t used = 0;
+    uint32_t handled_bytes = 0;
     NVS_Page *Page = (NVS_Page *) FlashDescriptors[GetCurrentIndex()].MemPtr;
     NVS_Cell *Cell = (NVS_Cell *) Page->GetData();
 
     used = Page->GetHeaderSize();
+    handled_bytes = Page->GetHeaderSize();
 
     while (!Cell->IsEmpty())
     {
@@ -391,8 +393,9 @@ uint32_t NVS::GetAvaliableSpaceInBytes(void)
             used += Cell->GetTotalSize();
         }
         
+        handled_bytes += Cell->GetTotalSize();
 
-        if (used >= FlashDescriptors[GetCurrentIndex()].Size)
+        if (handled_bytes >= FlashDescriptors[GetCurrentIndex()].Size)
         {
             break;
         }
