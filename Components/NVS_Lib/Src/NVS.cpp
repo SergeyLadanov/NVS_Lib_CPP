@@ -1,5 +1,10 @@
 #include "NVS.hpp"
 
+static_assert((sizeof(NVS_Cell::Header_t) % sizeof(NVS_State_t) == 0), 
+    "NVS_Cell::Header_t size must be multiples of size NVS_State_t, please change configuration in \"NVS_Config.h\"");
+
+
+
 NVS::NVS(NVS_IFlash &flash_if, FlashDesc_t *flash_desc, uint32_t len)
     : FlashDescriptors(flash_desc), FlashDescriptorsSize(len), FlashInterface(flash_if)
 {

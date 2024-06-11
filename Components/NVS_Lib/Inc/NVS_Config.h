@@ -7,15 +7,15 @@
 
 #define NVS_CONF_MAXBINARYCELLS_COUNT 2
 
-#define NVS_CONF_KEY_SIZE 14
-
-#define NVS_CONF_TYPEOF_TAG uint32_t
-
 #define NVS_CONF_TYPEOF_STATE uint32_t
 
 #define NVS_CONF_MAXSIZE_OF_CELL_VALUES 8
 
 #define NVS_CONF_USE_STRING_KEY 1
+
+#if NVS_CONF_USE_STRING_KEY != 0
+#define NVS_CONF_KEY_SIZE 14
+#endif
 
 #define NVS_CONF_TAG_START_VALUE 0x35353535
 
@@ -27,6 +27,9 @@
 
 
 /************************************/
+
+#define NVS_CONF_TYPEOF_TAG NVS_CONF_TYPEOF_STATE
+
 typedef NVS_CONF_TYPEOF_TAG NVS_Tag_t;
 
 typedef NVS_CONF_TYPEOF_STATE NVS_State_t;
