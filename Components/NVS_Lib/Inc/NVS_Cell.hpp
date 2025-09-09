@@ -151,7 +151,7 @@ public:
 
     bool IsEmpty(void)
     {
-        return (Header.StartTag == STATE_ERASED);
+        return (Header.StartTag == ((NVS_Tag_t) STATE_ERASED));
     }
 
 
