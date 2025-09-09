@@ -47,7 +47,7 @@ public:
 #if NVS_CONF_USE_STRING_KEY != 0
         char Key[NVS_CONF_KEY_SIZE];
 #else
-        uint16_t Key;
+        NVS_Key_t Key;
 #endif
         
         uint8_t BlockCount;
