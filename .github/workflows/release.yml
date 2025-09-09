@@ -27,9 +27,15 @@ jobs:
 
 
       - name: Download build artifatcs
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: Build_Output
+          name: Build_Output_Windows
+
+      - name: Download build artifatcs
+        uses: actions/download-artifact@v4
+        with:
+          name: Build_Output_Linux
+          
       - name: List of files
         run: ls
 
