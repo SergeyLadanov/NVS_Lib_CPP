@@ -245,7 +245,12 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, NVS_Key_t key)
     }
 
 
-    FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &new_cell, new_cell.GetTotalSize() - sizeof(new_cell.State));
+    FlashInterface.WriteData((uint8_t *) Cell, (uint8_t *) &new_cell,  new_cell.GetMemoryCellSize() - sizeof(new_cell.State));
+    uint32_t binary_size = new_cell.GetTotalSize() - new_cell.GetMemoryCellSize();
+    if (binary_size > 0)
+    {
+        FlashInterface.WriteData((uint8_t *) Cell->GetBinaryPtr(), (uint8_t *) new_cell.GetBinaryPtr(), binary_size);
+    }
     new_cell.State = new_cell.STATE_VALID;
     FlashInterface.WriteData((uint8_t *) &Cell->State, (uint8_t *) &new_cell.State, sizeof(new_cell.State));
     CurrentPageUsedBytes += new_cell.GetTotalSize();
