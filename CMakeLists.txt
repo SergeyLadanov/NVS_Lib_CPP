@@ -34,24 +34,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${Includes}
 )
 
+# Флаги компиляции только для основной цели
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>
+)
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Og>
+)
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:-Os>
+)
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Og>
+)
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:-Os>
+)
+
 # Подключение инструментов для работы с модулями
 include(common-tools.cmake)
-
-# Флаги компиляции
-add_compile_options(
-    $<$<COMPILE_LANGUAGE:CXX>:
-    -fno-rtti 
-    -fno-exceptions 
-    $<$<CONFIG:Debug>:
-    -Og>
-    $<$<CONFIG:Release>:
-    -Os>> 
-    $<$<COMPILE_LANGUAGE:C>:
-    $<$<CONFIG:Debug>:
-    -Og>
-    $<$<CONFIG:Release>:
-    -Os>>
-)
 
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -64,5 +65,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif ()
 
 
+# Включение поддержки тестирования через CTest
+enable_testing()
 
-                    
+# Добавление тестов (только для хостовой сборки)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  add_subdirectory(Tests)
+endif ()
