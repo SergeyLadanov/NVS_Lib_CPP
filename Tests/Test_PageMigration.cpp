@@ -20,12 +20,12 @@ int main(void)
 
     // После заполнения свободно 16 байт — новая запись не влезет
     uint32_t beforeMigrate = storage.GetAvaliableSpaceInBytes();
-    printf("  Available before overflow: %u\r\n", beforeMigrate);
+    nvs_printf("  Available before overflow: {}\r\n", beforeMigrate);
 
     // Запись не влезает в доступное место (16 < 32)
     int8_t overflowRes = storage.SetValue((NVS_Key_t)"mig_last", (uint32_t)999);
     assert(overflowRes != 0);
-    printf("  Overflow write result: %d (expected <0)\r\n", overflowRes);
+    nvs_printf("  Overflow write result: {} (expected <0)\r\n", overflowRes);
 
     // Проверяем, что все записанные значения читаются
     for (uint32_t i = 0; i < maxCells; i++)
@@ -38,6 +38,6 @@ int main(void)
         assert(readback == i);
     }
 
-    printf("\r\nAll page migration tests passed!\r\n");
+    nvs_printf("\r\nAll page migration tests passed!\r\n");
     return 0;
 }

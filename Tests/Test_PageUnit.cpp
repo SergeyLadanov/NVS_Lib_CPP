@@ -16,7 +16,7 @@ int main(void)
 
     uint32_t hdrSize = page.GetHeaderSize();
     assert(hdrSize == sizeof(NVS_Page::Header_t));
-    printf("  Page header size: %u\r\n", hdrSize);
+    nvs_printf("  Page header size: {}\r\n", hdrSize);
 
     // Проверка IsReadyToErase
     assert(page.IsReadyToErase() == false);
@@ -25,6 +25,6 @@ int main(void)
     assert(page.IsReadyToErase() == true);
     assert(page.IsMarkAsUsed()   == true);
 
-    printf("\r\nAll NVS_Page unit tests passed!\r\n");
+    nvs_printf("\r\nAll NVS_Page unit tests passed!\r\n");
     return 0;
 }

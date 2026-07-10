@@ -31,6 +31,6 @@ int main(void)
     assert(storage.GetValue((NVS_Key_t)"new_clr", newVal) == 0);
     assert(newVal == 999);
 
-    printf("\r\nAll Clear tests passed!\r\n");
+    nvs_printf("\r\nAll Clear tests passed!\r\n");
     return 0;
 }

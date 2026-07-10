@@ -20,8 +20,8 @@ int main(void)
     assert(storage.GetValue((NVS_Key_t)"multi", finalVal) == 0);
     assert(finalVal == NUM_WRITES - 1);
 
-    printf("  Final value after %u rewrites: %lu\r\n", NUM_WRITES, (unsigned long)finalVal);
+    nvs_printf("  Final value after {} rewrites: {}\r\n", NUM_WRITES, finalVal);
 
-    printf("\r\nAll multiple rewrite tests passed!\r\n");
+    nvs_printf("\r\nAll multiple rewrite tests passed!\r\n");
     return 0;
 }

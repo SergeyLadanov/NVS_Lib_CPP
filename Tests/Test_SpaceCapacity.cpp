@@ -9,10 +9,10 @@ int main(void)
     uint32_t dataArea       = PAGE_SIZE - pageHeaderSize;    // 240 bytes
     uint32_t maxCells       = dataArea / cellSize;           // 7 cells
 
-    printf("  Page header size : %u\r\n", pageHeaderSize);
-    printf("  Cell size        : %u\r\n", cellSize);
-    printf("  Data area        : %u\r\n", dataArea);
-    printf("  Max cells/page   : %u\r\n", maxCells);
+    nvs_printf("  Page header size : {}\r\n", pageHeaderSize);
+    nvs_printf("  Cell size        : {}\r\n", cellSize);
+    nvs_printf("  Data area        : {}\r\n", dataArea);
+    nvs_printf("  Max cells/page   : {}\r\n", maxCells);
 
     /* -------------------------------------------------- */
     /*  Начальное свободное место                        */
@@ -22,8 +22,8 @@ int main(void)
         NVS storage = CreateFreshStorage();
         uint32_t availBytes  = storage.GetAvaliableSpaceInBytes();
         uint32_t availBlocks = storage.GetAvaliableSpaceInBlocks();
-        printf("  Available bytes  : %u\r\n", availBytes);
-        printf("  Available blocks : %u\r\n", availBlocks);
+        nvs_printf("  Available bytes  : {}\r\n", availBytes);
+        nvs_printf("  Available blocks : {}\r\n", availBlocks);
         assert(availBytes  == dataArea);
         assert(availBlocks == maxCells);
     }
@@ -46,13 +46,13 @@ int main(void)
 
         uint32_t usedBytes  = PAGE_SIZE - storage.GetAvaliableSpaceInBytes();
         uint32_t expected   = pageHeaderSize + maxCells * cellSize;
-        printf("  Used bytes after fill : %u (expected ~%u)\r\n", usedBytes, expected);
+        nvs_printf("  Used bytes after fill : {} (expected ~{})\r\n", usedBytes, expected);
         assert(usedBytes >= expected - cellSize);
 
         // После заполнения страницы свободно 16 байт, а новая ячейка требует 32.
         int8_t overflowRes = storage.SetValue((NVS_Key_t)"overflow", (uint16_t)0xFFFF);
         assert(overflowRes != 0);
-        printf("  Overflow write result: %d (expected <0)\r\n", overflowRes);
+        nvs_printf("  Overflow write result: {} (expected <0)\r\n", overflowRes);
     }
 
     /* -------------------------------------------------- */
@@ -75,7 +75,7 @@ int main(void)
         memset(bigBuf, 0xAA, sizeof(bigBuf));
         int8_t res = storage.SetValue((NVS_Key_t)"big_arr", bigBuf, sizeof(bigBuf));
         assert(res != 0);
-        printf("  Oversized write result: %d (expected <0)\r\n", res);
+        nvs_printf("  Oversized write result: {} (expected <0)\r\n", res);
     }
 
     /* -------------------------------------------------- */
@@ -107,14 +107,14 @@ int main(void)
         storage.SetValue((NVS_Key_t)"clr_c", (uint32_t)300);
 
         uint32_t beforeClear = storage.GetAvaliableSpaceInBytes();
-        printf("  Available before clear: %u\r\n", beforeClear);
+        nvs_printf("  Available before clear: {}\r\n", beforeClear);
         assert(beforeClear < dataArea);
 
         // Очищаем
         storage.Clear();
 
         uint32_t afterClear = storage.GetAvaliableSpaceInBytes();
-        printf("  Available after clear : %u\r\n", afterClear);
+        nvs_printf("  Available after clear : {}\r\n", afterClear);
         assert(afterClear == dataArea);
     }
 
@@ -133,8 +133,8 @@ int main(void)
         storage.SetValue((NVS_Key_t)"rewrite", (uint16_t)200);
         uint32_t afterSecond = storage.GetAvaliableSpaceInBytes();
 
-        printf("  Available after 1st write: %u\r\n", afterFirst);
-        printf("  Available after 2nd write: %u\r\n", afterSecond);
+        nvs_printf("  Available after 1st write: {}\r\n", afterFirst);
+        nvs_printf("  Available after 2nd write: {}\r\n", afterSecond);
 
         // После перезаписи freed-пространство должно учитываться
         assert(afterSecond >= afterFirst);
@@ -145,6 +145,6 @@ int main(void)
         assert(readback == 200);
     }
 
-    printf("\r\nAll space/capacity tests passed!\r\n");
+    nvs_printf("\r\nAll space/capacity tests passed!\r\n");
     return 0;
 }

@@ -159,6 +159,6 @@ int main(void)
         assert(outLen == 0);
     }
 
-    printf("\r\nAll boundary value tests passed!\r\n");
+    nvs_printf("\r\nAll boundary value tests passed!\r\n");
     return 0;
 }

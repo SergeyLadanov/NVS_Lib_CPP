@@ -5,6 +5,7 @@
 #include "NVS_Cell.hpp"
 #include "NVS_Page.hpp"
 #include "NVS_Config.h"
+#include "NVS_Format.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
@@ -122,7 +123,7 @@ static NVS CreateFreshStorage(void)
  * ============================================================
  */
 
-#define TEST_SECTION(title)             printf("\r\n========== %s ==========\r\n", title)
-#define TEST_SUBSECTION(title)          printf("\r\n--- %s ---\r\n", title)
+#define TEST_SECTION(title)             nvs_printf("\r\n========== {} ==========\r\n", title)
+#define TEST_SUBSECTION(title)          nvs_printf("\r\n--- {} ---\r\n", title)
 
 #endif /* TEST_INFRASTRUCTURE_HPP */

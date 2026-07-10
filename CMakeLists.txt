@@ -9,6 +9,11 @@ set(EXECUTABLE ${PROJECT_NAME})
 # Язык C и C++
 enable_language(CXX C)
 
+# Стандарт C++20 (требуется для std::format)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Файлы с исходым кодом
 FILE(
     GLOB 
@@ -33,6 +38,9 @@ add_executable(
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${Includes}
 )
+
+# Статическая линковка libstdc++ и libgcc (требуется для std::format на MinGW)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
 
 # Флаги компиляции только для основной цели
 target_compile_options(${PROJECT_NAME} PRIVATE

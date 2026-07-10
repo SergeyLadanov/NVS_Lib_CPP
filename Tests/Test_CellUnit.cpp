@@ -9,11 +9,11 @@ int main(void)
     /* -------------------------------------------------- */
     TEST_SUBSECTION("Размеры структур");
     {
-        printf("  sizeof(NVS_Cell::Header_t) = %zu\r\n", sizeof(NVS_Cell::Header_t));
-        printf("  sizeof(NVS_Cell::State)    = %zu\r\n", sizeof(NVS_State_t));
-        printf("  NVS_Cell::MEMORY_CELL_SIZE = %zu\r\n", NVS_Cell::MEMORY_CELL_SIZE);
-        printf("  NVS_Cell::MAX_BINARY_BYTES = %zu\r\n", NVS_Cell::MAX_BINARY_BYTES);
-        printf("  sizeof(NVS_Page::Header_t) = %zu\r\n", sizeof(NVS_Page::Header_t));
+        nvs_printf("  sizeof(NVS_Cell::Header_t) = {}\r\n", sizeof(NVS_Cell::Header_t));
+        nvs_printf("  sizeof(NVS_Cell::State)    = {}\r\n", sizeof(NVS_State_t));
+        nvs_printf("  NVS_Cell::MEMORY_CELL_SIZE = {}\r\n", NVS_Cell::MEMORY_CELL_SIZE);
+        nvs_printf("  NVS_Cell::MAX_BINARY_BYTES = {}\r\n", NVS_Cell::MAX_BINARY_BYTES);
+        nvs_printf("  sizeof(NVS_Page::Header_t) = {}\r\n", sizeof(NVS_Page::Header_t));
 
         // Проверка выравнивания: Header_t должен быть кратен NVS_State_t
         assert((sizeof(NVS_Cell::Header_t) % sizeof(NVS_State_t)) == 0);
@@ -143,6 +143,6 @@ int main(void)
         assert(cell.IsKey("other")    == false);
     }
 
-    printf("\r\nAll NVS_Cell unit tests passed!\r\n");
+    nvs_printf("\r\nAll NVS_Cell unit tests passed!\r\n");
     return 0;
 }

@@ -122,7 +122,7 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
     {
         NVS_LOG("NVS storage is not empty!\r\n");
         WriteNumber = LastNumTemp;
-        NVS_LOG("Last page index: %d\r\n", GetCurrentIndex());
+        NVS_LOG("Last page index: {}\r\n", GetCurrentIndex());
     }
     else
     {
@@ -134,8 +134,8 @@ void NVS::Init(FlashDesc_t *flash_desc, uint32_t len)
 
     CurrentPageUsedBytes = ScanUsedBytes();
 
-    NVS_LOG("Current settings page: %d\r\n", GetCurrentIndex());
-    NVS_LOG("Using bytes: %d\r\n", GetUsedBytes());
+    NVS_LOG("Current settings page: {}\r\n", GetCurrentIndex());
+    NVS_LOG("Using bytes: {}\r\n", GetUsedBytes());
 }
 
 
@@ -206,7 +206,7 @@ void NVS::ReleaseCurrentPage(void)
 
     CurrentPageUsedBytes = ScanUsedBytes();
 
-    NVS_LOG("Used bytes: %d\r\n", CurrentPageUsedBytes);
+    NVS_LOG("Used bytes: {}\r\n", CurrentPageUsedBytes);
 }
 
 
@@ -214,8 +214,8 @@ void NVS::ReleaseCurrentPage(void)
 int8_t NVS::WriteCell(NVS_Cell &new_cell, NVS_Key_t key)
 {
     
-    NVS_LOG("Required size: %d\r\n", new_cell.GetTotalSize());
-    NVS_LOG("Avalible size: %d\r\n", GetAvaliableSpaceInBytes());
+    NVS_LOG("Required size: {}\r\n", new_cell.GetTotalSize());
+    NVS_LOG("Avalible size: {}\r\n", GetAvaliableSpaceInBytes());
 
     if (new_cell.GetTotalSize() > GetAvaliableSpaceInBytes())
     {
@@ -261,8 +261,8 @@ int8_t NVS::WriteCell(NVS_Cell &new_cell, NVS_Key_t key)
     }
 
     NVS_LOG("Write success!\r\n");
-    NVS_LOG("Used bytes: %d\r\n", GetUsedBytes());
-    NVS_LOG("Available bytes: %d\r\n", GetPageFreeSpace());
+    NVS_LOG("Used bytes: {}\r\n", GetUsedBytes());
+    NVS_LOG("Available bytes: {}\r\n", GetPageFreeSpace());
 
     return 0;
 }

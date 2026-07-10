@@ -218,6 +218,6 @@ int main(void)
         assert(storage.GetArray(KeyNone) == nullptr);
     }
 
-    printf("\r\nAll data type tests passed!\r\n");
+    nvs_printf("\r\nAll data type tests passed!\r\n");
     return 0;
 }

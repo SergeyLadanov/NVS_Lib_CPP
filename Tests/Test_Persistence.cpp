@@ -31,6 +31,6 @@ int main(void)
     assert(strVal != nullptr);
     assert(strcmp(strVal, "persistent!") == 0);
 
-    printf("\r\nAll persistence tests passed!\r\n");
+    nvs_printf("\r\nAll persistence tests passed!\r\n");
     return 0;
 }

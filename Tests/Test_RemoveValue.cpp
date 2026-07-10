@@ -20,6 +20,6 @@ int main(void)
     uint16_t after = 0;
     assert(storage.GetValue((NVS_Key_t)"rem_test", after) != 0);
 
-    printf("\r\nAll RemoveValue tests passed!\r\n");
+    nvs_printf("\r\nAll RemoveValue tests passed!\r\n");
     return 0;
 }
