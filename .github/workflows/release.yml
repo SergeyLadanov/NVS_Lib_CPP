@@ -18,12 +18,9 @@ jobs:
       - uses: actions/checkout@v4
 
 
-      - name: ZIP files
-        uses: thedoctor0/zip-release@master
-        with:
-          type: 'zip'
-          filename: 'release.zip'
-          directory: 'Components'
+      - name: Package NVS library
+        working-directory: Components
+        run: cmake -E tar cf release.zip --format=zip NVS_Lib
 
 
       - name: Download build artifatcs

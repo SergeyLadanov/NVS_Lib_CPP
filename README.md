@@ -6,6 +6,40 @@
 
 Пример эмуляции в ОЗУ находится в Core/Src/main.cpp
 
+## Подключение релизного архива через CPM.cmake
+
+В проекте прошивки подключите CPM.cmake и задайте `NVS_RELEASE_TAG` равным тегу релиза с поддержкой CPM. Пакет берётся из прикреплённого файла `NVS_Lib_<тег>.zip`. В примере `firmware` — существующая цель прошивки.
+
+```cmake
+include(cmake/CPM.cmake)
+
+CPMAddPackage(
+    NAME NVS_Lib
+    URL "https://github.com/SergeyLadanov/NVS_Lib_CPP/releases/download/${NVS_RELEASE_TAG}/NVS_Lib_${NVS_RELEASE_TAG}.zip"
+    OPTIONS
+        "NVS_CONF_DEBUG OFF"
+        "NVS_CONF_USE_STRING_KEY OFF"
+)
+target_link_libraries(firmware PRIVATE NVS::NVS)
+```
+
+Для локальной проверки укажите в `URL` полный путь к ZIP. Цель `NVS::NVS` передаёт прошивке путь к `NVS.hpp` и те же определения, с которыми собрана библиотека. Без `OPTIONS` используются прежние значения.
+
+| Параметр | По умолчанию | Назначение |
+| --- | --- | --- |
+| `NVS_CONF_DEBUG` | `ON` | Сообщения диагностики через `printf` |
+| `NVS_CONF_USE_STRING_KEY` | `ON` | Строковые ключи при `ON`, ключи типа `uint16_t` при `OFF` |
+| `NVS_CONF_KEY_SIZE` | `14` | Размер поля строкового ключа в байтах с учётом завершающего нуля |
+| `NVS_CONF_MAXSIZE_OF_CELL_VALUES` | `8` | Размер поля скалярного значения в байтах (2, 4 или 8) |
+| `NVS_CONF_MAXBINARYCELLS_COUNT` | `2` | Максимальное число дополнительных ячеек для двоичных данных |
+| `NVS_CONF_TYPEOF_STATE` | `uint32_t` | Беззнаковый тип состояния и начального маркера |
+| `NVS_CONF_TAG_START_VALUE` | `0x35353535` | Начальный маркер страницы и ячейки |
+| `NVS_CONF_ERASED_STATE_VALUE` | `0xFFFFFFFF` | Состояние после стирания FLASH |
+| `NVS_CONF_VALID_STATE_VALUE` | `0xAAAAAAAA` | Состояние действительной записи |
+| `NVS_CONF_RELEASED_STATE_VALUE` | `0x00000000` | Состояние освобождённой записи |
+
+Тип и размер ключа, размер скалярного значения, тип состояния и маркеры определяют формат данных во FLASH. Сохраняйте эти параметры при обновлении прошивки, которая должна читать прежние записи. Размер заголовка ячейки должен быть кратен размеру типа состояния. Библиотека проверяет это при компиляции.
+
 ## Пример для STM32F303VCT6
 
 ```cpp
